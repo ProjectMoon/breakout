@@ -74,8 +74,18 @@ Device.prototype.unpressKey = function(keyCode) {
 	}
 };
 
+//Event handling
+Device.prototype.addEventHandler = function(eventName, callback) {
+	throw new Error('No device addEventHandler function implemented.');
+};
+
+Device.prototype.emitEvent = function(eventName, evt) {
+	throw new Error('No device emitEvent function implemented.');
+};
+
+
 /**
- * Responsible for initializing the device's keyboard and garphics
+ * Responsible for initializing the device's keyboard and graphics
  * handling capabilities.
  */
 Device.prototype.init = function() {
@@ -150,4 +160,13 @@ BrowserDevice.prototype.height = function() {
 
 BrowserDevice.prototype.width = function() {
 	return this.canvas.width;
+};
+
+BrowserDevice.prototype.addEventListener = function(eventName, callback) {
+	this.canvas.addEventListener(eventName, callback, false);
+};
+
+BrowserDevice.prototype.emitEvent = function(eventName, evt) {
+	var event = new CustomEvent(eventName, evt);
+	this.canvas.dispatchEvent(event);
 };

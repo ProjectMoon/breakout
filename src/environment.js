@@ -137,7 +137,7 @@
 			throw new Error('Device did not initialize successfully');
 		}
 
-		this.game.init();
+		this.game.init(this);
 	};
 
 	/**
