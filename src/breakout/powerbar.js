@@ -53,15 +53,16 @@ Powerbar.prototype.render = function(device) {
 	var height = device.height();
 	var ctx = device.ctx;
 	var barHeight = 30;
+	var above = 50;
 
 	var filledWidth = (this.power / this.maxPower) * width;
 
 	ctx.save();
 
 	ctx.strokeStyle = '#555555';
-	ctx.strokeRect(0, height - barHeight, width, barHeight);
+	ctx.strokeRect(0, height - barHeight - above, width, barHeight);
 	ctx.fillStyle = '#0055AA';
-	ctx.fillRect(0, height - barHeight, filledWidth, barHeight);
+	ctx.fillRect(0, height - barHeight - above, filledWidth, barHeight);
 		
 	ctx.restore();
 };

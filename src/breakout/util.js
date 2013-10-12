@@ -5,6 +5,11 @@ util.collidesWithRect = function(hb1, hb2) {
 	return util.rectangleIntersection(hb1, hb2);
 };
 
+//from MDC
+util.getRandomNumber = function(min, max) {
+	return Math.random() * (max - min) + min;
+};
+
 util.rectangleIntersection = function(r1, r2) {
 	return !(r2.left > r1.right || 
 				r2.right < r1.left || 

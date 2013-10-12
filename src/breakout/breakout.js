@@ -2,7 +2,6 @@ var paddle;
 var ball;
 var bricks;
 var powerbar;
-var powerbarLock = false;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -49,7 +48,7 @@ Breakout.prototype.init = function(env) {
 		}
 
 		ball.speed += .1;
-		paddle.speed += .3;
+		paddle.vel += .15;
 	});
 
 	env.device.addInputListener(LAUNCH, function(keyCode) {

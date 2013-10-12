@@ -41,19 +41,21 @@ Ball.prototype.hitbox = function() {
 };
 
 Ball.prototype.updateForCollision = function(paddle, device) {
-	//this.yVel > 0 ? this.yVel = this.speed : this.yVel = -this.speed;
-	//this.xVel > 0 ? this.xVel = this.speed : this.xVel = -this.speed;
+	this.yVel > 0 ? this.yVel = this.speed : this.yVel = -this.speed;
 	
 	if (paddle.collidesWithRect(this.hitbox())) {
 		if (!this.inCollision) {
 			//change x vel based on distance from paddle center.
 			//paddle.x is the center of the paddle.
 			var dist = paddle.x - this.x;
-			var percentDist = dist / paddle.halfWidth;
+			var percentDist = dist * util.getRandomNumber(.5, 2) / paddle.width;
 			this.xVel *= percentDist * this.speed;
 			if (this.xVel > this.speed) this.xVel = this.speed;
 			if (this.xVel < -this.speed) this.xVel = -this.speed;
-			
+
+			if (this.x < paddle.x) this.xVel = -Math.abs(this.xVel);
+			else this.xVel = Math.abs(this.xVel);
+
 			this.yVel *= -1;
 			
 			this.inCollision = true;
