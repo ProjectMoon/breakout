@@ -25,6 +25,13 @@ Device.prototype.defineKey = function(keyCharacter, keyType, keyName) {
 	this._namesToKeys[keyName].push(keyCode);
 };
 
+Device.prototype.defineKeys = function(keys) {
+	for (var key in keys) {
+		var def = keys[key];
+		this.defineKey(key, def[0], def[1]);
+	}
+};
+
 Device.prototype.isKeyHeld = function(keyName) {
 	var keyCodes = this._namesToKeys[keyName];
 

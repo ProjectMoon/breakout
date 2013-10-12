@@ -99,7 +99,7 @@
 		}
 
 		//check for game definition.
-		var game = this.env[descr.game];
+		var game = descr.game;
 		if (!game) throw new Error('No game definition found');
 		this.game = new game;
 		delete EnvironmentMgr._devices[descr.name];

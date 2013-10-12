@@ -28,7 +28,7 @@ window.onload = function() {
 		Environment.describe('breakout', {
 			device: collection.device,
 			assets: collection.assets,
-			game: 'BreakoutGame'
+			game: Breakout
 		});
 		
 		Environment.start('breakout');

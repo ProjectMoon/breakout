@@ -1,37 +1,27 @@
-Environment.declare('breakout', {
-		MOVE_LEFT: 'MOVE_LEFT',
-		MOVE_RIGHT: 'MOVE_RIGHT'
-});
+var paddle = new Paddle();
 
-Environment.env('breakout', function(env) {
-	env.MOVE_LEFT = 'MOVE_LEFT';
-	var paddle = new env.Paddle();
-	
-	function Breakout() {
-		console.log('Breakout loaded.');
-	}
+function Breakout() {
+	console.log('Breakout loaded.');
+}
 
-	Breakout.prototype = new Game;
+Breakout.prototype = new Game;
 
-	//What graphics do we support?
-	Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
+//What graphics do we support?
+Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
 
-	//keynames
+//keynames
 
-	//methods
-	Breakout.prototype.init = function(device, assets) {
-		device.defineKey('A', Device.KEY_TYPE_HOLD, env.MOVE_LEFT);
-		device.defineKey('D', Device.KEY_TYPE_HOLD, env.MOVE_RIGHT);
-	};
+//methods
+Breakout.prototype.init = function(device, assets) {
+	device.defineKeys(BINDS);
+};
 
-	Breakout.prototype.update = function(device, du) {
-		paddle.update(device, du);
-	};
+Breakout.prototype.update = function(device, du) {
+	paddle.update(device, du);
+};
 
-	Breakout.prototype.render = function(device) {
-		device.clear();
-		paddle.render(device);
-	};
+Breakout.prototype.render = function(device) {
+	device.clear();
+	paddle.render(device);
+};
 
-	return { BreakoutGame: Breakout };
-});
