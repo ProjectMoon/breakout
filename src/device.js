@@ -126,7 +126,7 @@ BrowserDevice.prototype.init = function() {
 	this.canvas = document.getElementById(this.id);
 	this.ctx = this.canvas.getContext('2d');
 	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
-
+	
 	//input device setup.
 	var self = this;
 	window.addEventListener('keydown', function(event) {

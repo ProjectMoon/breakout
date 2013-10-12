@@ -1,6 +1,6 @@
 function Paddle() {
 	this.x = 100;
-	this.y = 100;
+	this.y = 700;
 }
 
 Paddle.prototype.update = function(device, du) {

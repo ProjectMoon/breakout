@@ -6,7 +6,7 @@ window.requestAnimationFrame =
 //async load various assets: images, etc.
 function acquireAssets(callback) {
 	//device: what handles draw and input
-	var device = new BrowserDevice('canvas', 16.666);
+	var device = new BrowserDevice('canvas', 16.666, 400, 400);
 
 	//game assets: things the game needs to run
 	var assets = {
