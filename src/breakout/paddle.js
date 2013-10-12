@@ -12,9 +12,6 @@ Paddle.prototype.halfWidth = 50;
 Paddle.prototype.halfHeight = 10;
 
 Paddle.prototype.update = function (device, du) {
-	this.movingLeft = false;
-	this.movingRight = false;
-
 	if (device.isKeyHeld(MOVE_RIGHT)) {
 		if (this.x + this.halfWidth + 5 < device.width()) {
 			this.x += this.vel * du;
@@ -23,16 +20,16 @@ Paddle.prototype.update = function (device, du) {
 	
 	if (device.isKeyHeld(MOVE_LEFT)) {
 		if (this.x - this.halfWidth - 5 > 0) {
-				this.cx -= 5;
+			this.x -= this.vel * du;
 		}
 	}
 };
 
-Paddle.prototype.render = function (ctx) {
-	 ctx.fillRect(this.x - this.halfWidth,
-					  this.y - this.halfHeight,
-					  this.halfWidth * 2,
-					  this.halfHeight * 2);
+Paddle.prototype.render = function (device) {
+	 device.ctx.fillRect(this.x - this.halfWidth,
+								this.y - this.halfHeight,
+								this.halfWidth * 2,
+								this.halfHeight * 2);
 };
 
 Paddle.prototype.collidesWith = function (prevX, prevY, nextX, nextY, r) {
@@ -75,46 +72,3 @@ function rectangleIntersection(r1, r2) {
 		r2.top > r1.bottom ||
 		r2.bottom < r1.top);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Paddle.prototype.update = function(device, du) {
-	if (device.isKeyHeld(MOVE_LEFT)) {
-		this.x -= this.vel * du;
-	}
-
-	if (device.isKeyHeld(MOVE_RIGHT)) {
-		this.x += this.vel * du;
-	}
-};
-
-Paddle.prototype.render = function(device) {
-	var ctx = device.ctx;
-
-	ctx.save();
-
-	ctx.fillRect(this.x, this.y, 100, 20);
-
-	ctx.restore();
-};

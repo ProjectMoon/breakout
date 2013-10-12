@@ -42,11 +42,15 @@ Ball.prototype.update = function (device, du) {
 	// Compute my provisional new position (barring collisions)
 	var nextX = prevX + this.xVel * du;
 	var nextY = prevY + this.yVel * du;
-										 	 
-	 // Bounce off top and bottom edges
-	 if (nextY < 0 ||										 // top edge
-		  nextY > device.height()) {					 // bottom edge
-		  this.yVel *= -1;
+	
+	// Bounce off top edge
+	if (nextY < 0) {
+		this.yVel *= -1;
+	}
+	
+	//bottom edge equals event
+	if (nextY > device.height()) {
+		device.emitEvent(HIT_BOTTOM);
 	 }
 
 	// bounce off left and right edges, also scoring
@@ -58,20 +62,20 @@ Ball.prototype.update = function (device, du) {
 		this.xVel *= -1;
 	}
 
-	 // Reset if we fall off the left or right edges
-	 // ...by more than some arbitrary `margin`
-	 //
-	 var margin = 4 * this.radius;
-	 if (nextX < -margin || 
-		  nextX > device.width() + margin) {
-		  this.reset();
-	 }
-
-	 // *Actually* update my position 
-	 // ...using whatever velocity I've ended up with
-	 //
-	 this.x += this.xVel;
-	 this.y += this.yVel;
+	// Reset if we fall off the left or right edges
+	// ...by more than some arbitrary `margin`
+	//
+	var margin = 4 * this.radius;
+	if (nextX < -margin || 
+		 nextX > device.width() + margin) {
+		this.reset();
+	}
+	
+	// *Actually* update my position 
+	// ...using whatever velocity I've ended up with
+	//
+	this.x += this.xVel;
+	this.y += this.yVel;
 };
 
 Ball.prototype.render = function(device) {

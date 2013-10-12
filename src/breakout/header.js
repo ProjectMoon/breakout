@@ -7,3 +7,6 @@ var BINDS = {
 	A: [ Device.KEY_TYPE_HOLD, MOVE_LEFT ],
 	D: [ Device.KEY_TYPE_HOLD, MOVE_RIGHT ]
 };
+
+//event names
+var HIT_BOTTOM = 'hitBottom';

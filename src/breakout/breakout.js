@@ -19,8 +19,10 @@ Breakout.prototype.init = function(env) {
 	paddle = new Paddle();
 	ball = new Ball(paddle, env.device);
 
-	env.device.addEventListener('boing', function() {
-		alert('boing');
+	env.device.addEventListener(HIT_BOTTOM, function() {
+		//game over
+		alert('game over');
+		location.reload();
 	});
 };
 
