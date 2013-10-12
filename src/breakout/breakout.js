@@ -1,6 +1,7 @@
 var paddle;
 var ball;
 var bricks;
+var power = 0; //if we enter supermode?
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -30,13 +31,21 @@ Breakout.prototype.init = function(env) {
 	});
 
 	env.device.addEventListener(HIT_BRICK, function(evt) {
-		evt.brick.life--;
+		evt.brick.life -= ball.power;
+		if (!ball.ubermode) {
+			power++;
+		}
+		
 		if (evt.brick.life <= 0) {
 			bricks.bricks[evt.r][evt.c] = null;
+
+			if (!ball.ubermode) {
+				power += evt.brick.points;
+			}
 		}
 
 		ball.speed += .1;
-		paddle.speed += .2;
+		paddle.speed += .3;
 	});
 
 	env.device.addInputListener(LAUNCH, function(keyCode) {
@@ -48,6 +57,18 @@ Breakout.prototype.init = function(env) {
 
 Breakout.prototype.update = function(device, du) {
 	if (this.gameOver) return;
+	if (power > 0) power -= .02 * du;
+	if (power < 0) power = 0;
+
+	if (power >= 10) {
+		//ubermode!
+		ball.ubermode = true;
+		power = 0;
+		setTimeout(function() {
+			ball.ubermode = false;
+		}, 3 * 1000);
+	}
+	document.getElementById('info').innerText = power;
 	paddle.update(device, du);
 	ball.update(device, du);
 };

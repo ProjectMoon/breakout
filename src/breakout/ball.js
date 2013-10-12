@@ -3,6 +3,8 @@ function Ball(paddle, bricks, device) {
 	this.device = device;
 	this.bricks = bricks;
 
+	this.power = 1; //how much damage it does to blocks
+	this.ubermode = false;
 	this.radius = 8;
 	this.speed = 10;
 	this.xVel = 0;
@@ -81,10 +83,14 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 				
 				if (util.collidesWithRect(hitbox, ballHitbox)) {
 					if (!this.inCollision) {
-						this.yVel *= -1;
 						this.inCollision = true;
 						var evt = { r: r, c: c, brick: brick };
 						device.emitEvent(HIT_BRICK, evt);
+
+						//if ubermode, we just keep going.
+						if (!this.ubermode) {
+							this.yVel *= -1;
+						}
 						break outer;
 					}
 					else {
