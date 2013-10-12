@@ -1,6 +1,7 @@
-function Ball(paddle, device) {
+function Ball(paddle, bricks, device) {
 	this.paddle = paddle;
 	this.device = device;
+	this.bricks = bricks;
 	this.x = 100;
 	this.y = 650;
 	this.radius = 8;
@@ -20,7 +21,7 @@ Ball.prototype.hitbox = function() {
 	return rect;
 };
 
-Ball.prototype.updateForCollision = function(paddle) {
+Ball.prototype.updateForCollision = function(paddle, device) {
 	if (paddle.collidesWithRect(this.hitbox())) {
 		if (!this.inCollision) {
 			this.yVel *= -1;
@@ -30,10 +31,39 @@ Ball.prototype.updateForCollision = function(paddle) {
 	else {
 		this.inCollision = false;
 	}
+
+	//bricks
+	//detect a collision:
+	//generate hitbox based on brick pos, size
+	//ball
+	
+	//here we don't want to take into account spacing due
+	//to hitboxes.
+	var bricks = this.bricks.bricks;
+	var width = device.width();
+	var brickWidth = (width / bricks[0].length);
+	var brickHeight = this.bricks.brickHeight;
+
+	outer:
+	for (var r = 0; r < bricks.length; r++) {
+		var row = bricks[r];
+		for (var c = 0; c < row.length; c++) {
+			var brick = bricks[r][c];
+			var hitbox = this.bricks.getHitbox(r, c, brickWidth, brickHeight);
+			var ballHitbox = this.hitbox();
+			
+			if (util.collidesWithRect(hitbox, ballHitbox)) {
+				this.yVel *= -1;
+				var evt = { r: r, c: c, brick: brick };
+				device.emitEvent(HIT_BRICK, evt);
+				break outer;
+			}
+		}
+	}
 };
 
 Ball.prototype.update = function (device, du) {
-	this.updateForCollision(this.paddle);
+	this.updateForCollision(this.paddle, device);
 
 	// Remember my previous position
 	var prevX = this.x;

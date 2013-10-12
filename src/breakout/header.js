@@ -10,3 +10,4 @@ var BINDS = {
 
 //event names
 var HIT_BOTTOM = 'hitBottom';
+var HIT_BRICK = 'hitBrick';

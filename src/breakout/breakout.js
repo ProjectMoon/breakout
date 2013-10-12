@@ -1,8 +1,10 @@
 var paddle;
 var ball;
+var bricks;
 
 function Breakout() {
 	console.log('Breakout loaded.');
+	this.gameOver = false;
 }
 
 Breakout.prototype = new Game;
@@ -17,22 +19,32 @@ Breakout.prototype.init = function(env) {
 	env.device.defineKeys(BINDS);
 
 	paddle = new Paddle();
-	ball = new Ball(paddle, env.device);
+	bricks = new Bricks();
+	ball = new Ball(paddle, bricks, env.device);
 
+	var self = this;
 	env.device.addEventListener(HIT_BOTTOM, function() {
 		//game over
-		alert('game over');
-		location.reload();
+		self.gameOver = true;
+	});
+
+	env.device.addEventListener(HIT_BRICK, function(evt) {
+		evt.brick.life--;
+		if (evt.brick.life <= 0) {
+			bricks.bricks[evt.r][evt.c] = null;
+		}
 	});
 };
 
 Breakout.prototype.update = function(device, du) {
+	if (this.gameOver) return;
 	paddle.update(device, du);
 	ball.update(device, du);
 };
 
 Breakout.prototype.render = function(device) {
 	device.clear();
+	bricks.render(device);
 	paddle.render(device);
 	ball.render(device);
 };

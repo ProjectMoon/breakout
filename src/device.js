@@ -163,10 +163,13 @@ BrowserDevice.prototype.width = function() {
 };
 
 BrowserDevice.prototype.addEventListener = function(eventName, callback) {
-	this.canvas.addEventListener(eventName, callback, false);
+	this.canvas.addEventListener(eventName, function(event) {
+		var detail = event.detail;
+		callback(detail);
+	}, false);
 };
 
 BrowserDevice.prototype.emitEvent = function(eventName, evt) {
-	var event = new CustomEvent(eventName, evt);
+	var event = new CustomEvent(eventName, { detail: evt });
 	this.canvas.dispatchEvent(event);
 };

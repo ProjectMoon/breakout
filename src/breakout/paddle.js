@@ -32,22 +32,6 @@ Paddle.prototype.render = function (device) {
 								this.halfHeight * 2);
 };
 
-Paddle.prototype.collidesWith = function (prevX, prevY, nextX, nextY, r) {
-	 var paddleEdge = this.x;
-	 // Check X coords
-	 if ((nextX - r < paddleEdge && prevX - r >= paddleEdge) ||
-		  (nextX + r > paddleEdge && prevX + r <= paddleEdge)) {
-		  // Check Y coords
-		  if (nextY + r >= this.y - this.halfHeight &&
-				nextY - r <= this.y + this.halfHeight) {
-				// It's a hit!
-				return true;
-		  }
-	 }
-	 // It's a miss!
-	 return false;
-};
-
 Paddle.prototype.hitbox = function() {
 	var rect = {
 		left: this.x - this.halfWidth,
@@ -62,13 +46,5 @@ Paddle.prototype.hitbox = function() {
 };
 
 Paddle.prototype.collidesWithRect = function(rect) {
-	var thisRect = this.hitbox();
-	return rectangleIntersection(thisRect, rect);
+	return util.collidesWithRect(this.hitbox(), rect);
 };
-
-function rectangleIntersection(r1, r2) {
- return !(r2.left > r1.right || 
-		r2.right < r1.left || 
-		r2.top > r1.bottom ||
-		r2.bottom < r1.top);
-}
