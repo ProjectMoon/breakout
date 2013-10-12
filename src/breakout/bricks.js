@@ -110,8 +110,9 @@ Bricks.prototype.render = function(device) {
 				ctx.strokeStyle = '#333333';
 				ctx.fillRect(x, y, brickWidth, brickHeight);
 				ctx.strokeRect(x, y, brickWidth, brickHeight);
-				x += brickWidth + this.spacing;
 			}
+
+			x += brickWidth + this.spacing;
 		}
 	}
 

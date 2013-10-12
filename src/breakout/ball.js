@@ -5,8 +5,8 @@ function Ball(paddle, bricks, device) {
 	this.x = 100;
 	this.y = 650;
 	this.radius = 8;
-	this.xVel = 5;
-	this.yVel = 3;
+	this.xVel = 8;
+	this.yVel = 6;
 	this.inCollision = false;
 }
 
@@ -49,14 +49,24 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 		var row = bricks[r];
 		for (var c = 0; c < row.length; c++) {
 			var brick = bricks[r][c];
-			var hitbox = this.bricks.getHitbox(r, c, brickWidth, brickHeight);
-			var ballHitbox = this.hitbox();
-			
-			if (util.collidesWithRect(hitbox, ballHitbox)) {
-				this.yVel *= -1;
-				var evt = { r: r, c: c, brick: brick };
-				device.emitEvent(HIT_BRICK, evt);
-				break outer;
+
+			//only check if a brick is actually there...
+			if (brick) {
+				var hitbox = this.bricks.getHitbox(r, c, brickWidth, brickHeight);
+				var ballHitbox = this.hitbox();
+				
+				if (util.collidesWithRect(hitbox, ballHitbox)) {
+					if (!this.inCollision) {
+						this.yVel *= -1;
+						this.inCollision = true;
+						var evt = { r: r, c: c, brick: brick };
+						device.emitEvent(HIT_BRICK, evt);
+						break outer;
+					}
+					else {
+						this.inCollision = false;
+					}
+				}
 			}
 		}
 	}
