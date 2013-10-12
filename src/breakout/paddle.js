@@ -1,10 +1,9 @@
 function Paddle() {
 	this.x = 100;
 	this.y = 700;
-	this.vel = 10;
-
-	this.movingRight = false;
-	this.movingLeft = false;
+	this.vel = 15;
+	this.width = this.halfWidth * 2;
+	this.height = this.halfHeight * 2;
 }
 
 

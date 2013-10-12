@@ -25,6 +25,7 @@ Breakout.prototype.init = function(env) {
 	var self = this;
 	env.device.addEventListener(HIT_BOTTOM, function() {
 		//game over
+		console.log('game over');
 		self.gameOver = true;
 	});
 
@@ -32,6 +33,15 @@ Breakout.prototype.init = function(env) {
 		evt.brick.life--;
 		if (evt.brick.life <= 0) {
 			bricks.bricks[evt.r][evt.c] = null;
+		}
+
+		ball.speed += .1;
+		paddle.speed += .2;
+	});
+
+	env.device.addInputListener(LAUNCH, function(keyCode) {
+		if (!ball.launched) {
+			ball.launch();
 		}
 	});
 };

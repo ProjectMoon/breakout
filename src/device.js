@@ -9,8 +9,14 @@ function Device() {
 }
 
 //Keyboard handling.
-//types of key events. only support hold for now.
+//types of key events.
+//Hold: detectable via isKeyHeld, intended for movement etc.
+//cannot be listened to for events.
+//Emit: Emit events continuously when pressed.
+//Emit Once: Fire only once when pressed, until you let go and press again.
 Device.KEY_TYPE_HOLD = 0;
+Device.KEY_TYPE_EMIT = 1;
+Device.KEY_TYPE_EMIT_ONCE = 2;
 
 Device.prototype.defineKey = function(keyCharacter, keyType, keyName) {
 	var keyCode = keyCharacter.charCodeAt(0);
@@ -56,22 +62,63 @@ Device.prototype.isKeyHeld = function(keyName) {
 	return false;
 };
 
+/**
+ * Press a key. The device should call this method when it responds to
+ * keypress events to properly trigger input events and keypress state
+ * changes.
+ */
 Device.prototype.pressKey = function(keyCode) {
 	if (this.keys[keyCode]) {
+		var keybind = this.keys[keyCode];
+		//EMIT_ONCE keys emit the event when the key is initially
+		//pressed, but no more. regular EMIT will continually emit the
+		//event every time a press is detected.
+		if (keybind.type === Device.KEY_TYPE_EMIT_ONCE) {
+			if (!this.keys[keyCode].pressed) {
+				this.emitEvent('key' + keyCode, keyCode);
+			}
+		}
+
+		if (keybind.type === Device.KEY_TYPE_EMIT) {
+			this.emitEvent('key' + keyCode, keyCode);
+		}
+		
 		this.keys[keyCode].pressed = true;
 	}
 	else {
-		console.log('No binding for ' + String.fromCharCode(keyCode));
+		console.log('No binding for "' + String.fromCharCode(keyCode) + '"');
 	}
 };
 
+/**
+ * Unpress a key. The device should call this method when it detects a
+ * key is no longer pressed to properly trigger input events and
+ * keypress state changes.
+ */
 Device.prototype.unpressKey = function(keyCode) {
 	if (this.keys[keyCode]) {
 		this.keys[keyCode].pressed = false;
 	}
 	else {
-		console.log('No binding for ' + String.fromCharCode(keyCode));
+		console.log('No binding for "' + String.fromCharCode(keyCode) + '"');
 	}
+};
+
+/**
+ * Listen for events for a given key binding name. Will trigger for
+ * each key the name is bound to. Note that the event will trigger
+ * based on each key bind's type, so if one name is bound to EMIT and
+ * EMIT_ONCE, it will trigger once for the EMIT_ONCE key and
+ * continuously for the EMIT key(s). The event receives the key code
+ * (not character) as an argument.
+ */
+Device.prototype.addInputListener = function(keyName, callback) {
+	var keyCodes = this._namesToKeys[keyName];
+
+	var self = this;
+	keyCodes.forEach(function(keyCode) {
+		self.addEventListener('key' + keyCode, callback);
+	});
 };
 
 //Event handling

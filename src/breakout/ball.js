@@ -2,13 +2,30 @@ function Ball(paddle, bricks, device) {
 	this.paddle = paddle;
 	this.device = device;
 	this.bricks = bricks;
-	this.x = 100;
-	this.y = 650;
+
 	this.radius = 8;
-	this.xVel = 8;
-	this.yVel = 6;
+	this.speed = 10;
+	this.xVel = 0;
+	this.yVel = 0;
 	this.inCollision = false;
+	
+	//ball appears on center of paddle first.
+	this.launched = false;
+	this.centerToPaddle();
 }
+
+Ball.prototype.centerToPaddle = function() {
+	//-3 because otherwise it immediately collides and goes nuts.
+	this.x = paddle.x;
+	this.y = paddle.y - paddle.height + (this.radius / 2) - 3;
+};
+
+Ball.prototype.launch = function() {
+	this.xVel =  10;
+	this.yVel = -10;
+	this.launched = true;
+	this.inCollision = true;
+};
 
 Ball.prototype.hitbox = function() {
 	var rect = {};
@@ -22,20 +39,27 @@ Ball.prototype.hitbox = function() {
 };
 
 Ball.prototype.updateForCollision = function(paddle, device) {
+	//this.yVel > 0 ? this.yVel = this.speed : this.yVel = -this.speed;
+	//this.xVel > 0 ? this.xVel = this.speed : this.xVel = -this.speed;
+	
 	if (paddle.collidesWithRect(this.hitbox())) {
 		if (!this.inCollision) {
+			//change x vel based on distance from paddle center.
+			//paddle.x is the center of the paddle.
+			var dist = paddle.x - this.x;
+			var percentDist = dist / paddle.halfWidth;
+			this.xVel *= percentDist * this.speed;
+			if (this.xVel > this.speed) this.xVel = this.speed;
+			if (this.xVel < -this.speed) this.xVel = -this.speed;
+			
 			this.yVel *= -1;
+			
 			this.inCollision = true;
 		}
 	}
 	else {
 		this.inCollision = false;
 	}
-
-	//bricks
-	//detect a collision:
-	//generate hitbox based on brick pos, size
-	//ball
 	
 	//here we don't want to take into account spacing due
 	//to hitboxes.
@@ -73,6 +97,12 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 };
 
 Ball.prototype.update = function (device, du) {
+	//if we have not launched, move with the paddle.
+	if (!this.launched) {
+		this.centerToPaddle();
+		return;
+	}
+	
 	this.updateForCollision(this.paddle, device);
 
 	// Remember my previous position
