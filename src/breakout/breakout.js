@@ -1,4 +1,5 @@
-var paddle = new Paddle();
+var paddle;
+var ball;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -12,16 +13,22 @@ Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
 //keynames
 
 //methods
-Breakout.prototype.init = function(device, assets) {
-	device.defineKeys(BINDS);
+Breakout.prototype.init = function() {
+	var env = Environment.breakout;
+	env.device.defineKeys(BINDS);
+
+	paddle = new Paddle();
+	ball = new Ball(paddle, env);
 };
 
 Breakout.prototype.update = function(device, du) {
 	paddle.update(device, du);
+	ball.update(device, du);
 };
 
 Breakout.prototype.render = function(device) {
 	device.clear();
 	paddle.render(device);
+	ball.render(device);
 };
 

@@ -42,6 +42,10 @@
 			game: EnvironmentMgr._games[name]
 		});
 
+		//associate this environment with its name, so it can be
+		//acccessed by objects relating to said game.
+		EnvironmentMgr[name] = env;
+
 		env.start();
 	};
 	/**
@@ -133,7 +137,7 @@
 			throw new Error('Device did not initialize successfully');
 		}
 
-		this.game.init(this.device, this.assets);
+		this.game.init();
 	};
 
 	/**
