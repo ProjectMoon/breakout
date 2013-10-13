@@ -23,7 +23,7 @@ Breakout.prototype.init = function(env) {
 	paddle = new Paddle();
 	bricks = new Bricks();
 	ball = new Ball(paddle, bricks, env.device);
-	powerbar = new Powerbar(10);
+	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
 
 	var self = this;
@@ -49,12 +49,38 @@ Breakout.prototype.init = function(env) {
 			}
 		}
 
-		ball.speed += .1;
-		paddle.vel += .15;
+		//ubermode makes the speed go up way too fast
+		//otherwise.
+		if (!ball.ubermode) {
+			ball.speed += .1;
+			paddle.vel += .15;
+		}
+		else {
+			ball.speed += .02;
+			paddle.vel += .025;
+		}
 	});
 
+	//serves 2 purposes: launch the ball at the start, and use powers.
 	env.device.addInputListener(LAUNCH, function(keyCode) {
-		if (!ball.launched) {
+		if (ball.launched) {
+			var power = powerselector.getSelected();
+
+			powerbar.powerup();
+			if (power === 'ubermode') {
+				ball.ubermode = true;
+			}
+
+			if (power === 'slowtime') {
+				ball.slowtime = true;
+			}
+			
+			powerbar.expire(function() {
+				ball.ubermode = false;
+				ball.slowtime = false;
+			}, 3);	
+		}
+		else {
 			ball.launch();
 		}
 	});
@@ -72,20 +98,15 @@ Breakout.prototype.update = function(device, du) {
 	if (this.gameOver) return;
 	if (powerbar.power > 0) powerbar.add(-.02 * du);
 	if (powerbar.power < 0) powerbar.power = 0;
-
-	if (powerbar.isMaxPower()){
-		//ready to launch captain.
-		//ubermode!
-		/*
-		ball.ubermode = true;
-		powerbar.expire(function() {
-			ball.ubermode = false;
-		}, 3);
-		*/
-	}
 	
 	paddle.update(device, du);
-	ball.update(device, du);
+
+	if (!ball.slowtime) {
+		ball.update(device, du);
+	}
+	else {
+		ball.update(device, du / 8);
+	}
 };
 
 Breakout.prototype.render = function(device) {

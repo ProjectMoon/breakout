@@ -4,7 +4,7 @@ function PowerSelector() {
 }
 
 PowerSelector.prototype.getSelected = function() {
-	return this.powers[selected];
+	return this.powers[this.selected];
 };
 
 PowerSelector.prototype.move = function(amount) {

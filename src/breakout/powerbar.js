@@ -1,6 +1,6 @@
-function Powerbar(power) {
+function Powerbar(power, powermax) {
 	this.power = power;
-	this.maxPower = 10;
+	this.maxPower = powermax;
 	this.poweredup = false;
 	this.locked = {};
 	this.groups = [ 'default' ];

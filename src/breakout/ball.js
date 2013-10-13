@@ -4,12 +4,15 @@ function Ball(paddle, bricks, device) {
 	this.bricks = bricks;
 
 	this.power = 1; //how much damage it does to blocks
-	this.ubermode = false;
 	this.radius = 8;
 	this.speed = 10;
 	this.xVel = 0;
 	this.yVel = 0;
 	this.inCollision = false;
+
+	//various powerups that affect the ball
+	this.ubermode = false;
+	this.slowtime = false;
 	
 	//ball appears on center of paddle first.
 	this.launched = false;
@@ -41,8 +44,6 @@ Ball.prototype.hitbox = function() {
 };
 
 Ball.prototype.updateForCollision = function(paddle, device) {
-	this.yVel > 0 ? this.yVel = this.speed : this.yVel = -this.speed;
-	
 	if (paddle.collidesWithRect(this.hitbox())) {
 		if (!this.inCollision) {
 			//change x vel based on distance from paddle center.
@@ -89,10 +90,12 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 						var evt = { r: r, c: c, brick: brick };
 						device.emitEvent(HIT_BRICK, evt);
 
-						//if ubermode, we just keep going.
+						//if not in ubermode, bounce as expected.
+						//otherwise we would instead plow on through.
 						if (!this.ubermode) {
 							this.yVel *= -1;
 						}
+						
 						break outer;
 					}
 					else {
@@ -110,6 +113,11 @@ Ball.prototype.update = function (device, du) {
 		this.centerToPaddle();
 		return;
 	}
+
+	//set the y velocity to the current speed.
+	//x velocity possibly gets changed by collisions.
+	//y velocity never actually changes except for negative flipping.
+	this.yVel > 0 ? this.yVel = this.speed : this.yVel = -this.speed;
 	
 	this.updateForCollision(this.paddle, device);
 
@@ -131,7 +139,7 @@ Ball.prototype.update = function (device, du) {
 		device.emitEvent(HIT_BOTTOM);
 	 }
 
-	// bounce off left and right edges, also scoring
+	// bounce off left and right edges
 	if (nextX < 0) {
 		this.xVel *= -1;
 	}
