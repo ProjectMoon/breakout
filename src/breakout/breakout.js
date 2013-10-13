@@ -9,10 +9,11 @@ TODO:
 
  cool things (need 6):
  - powerup meter
- - tetris type speedup with constant incoming blocks
- - black hole
- - debuff blocks
- - dubstep mode?
+ - constant levels a la tetris
+ - deathray
+ - ubermode
+ - slowtime
+ - next set of blocks preview
  */
 
 var paddle;
@@ -24,6 +25,8 @@ var powerselector;
 function Breakout() {
 	console.log('Breakout loaded.');
 	this.gameOver = false;
+	this.deathrays = [];
+	this.gotClearBonus = false;
 }
 
 Breakout.prototype = new Game;
@@ -41,6 +44,10 @@ Breakout.prototype.respawn = function(device) {
 	ball = new Ball(paddle, bricks, device);
 	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
+
+	this.deathrays = [];
+	this.gotClearBonus = false;
+	
 	globals.levelScore = 0;
 	globals.totalScore = 0;
 	globals.level = 1;
@@ -59,6 +66,11 @@ Breakout.prototype.init = function(assoc) {
 		console.log('game over');
 		//self.gameOver = true;
 		//later switch for respawning.
+		globals.games++;
+		globals.previousScores.push({
+			score: globals.totalScore,
+			level: globals.level
+		});
 		self.respawn(device);
 		assoc.sendMessage('panel', 'respawn');
 	});
@@ -66,7 +78,7 @@ Breakout.prototype.init = function(assoc) {
 	device.addEventListener(HIT_BRICK, function(evt) {
 		evt.brick.life -= ball.power;
 		if (!ball.ubermode) {
-			powerbar.add(1);
+			powerbar.add(1 + (globals.level / 100));
 			powerbar.lock(.1);
 		}
 		
@@ -75,7 +87,7 @@ Breakout.prototype.init = function(assoc) {
 			bricks.bricks[evt.r][evt.c] = null;
 
 			if (!powerbar.isMaxPower()) {
-				powerbar.add(2, 'kill');
+				powerbar.add(2 + (globals.level / 100), 'kill');
 				powerbar.lock(.5, 'kill');
 			}
 
@@ -105,10 +117,15 @@ Breakout.prototype.init = function(assoc) {
 				if (power === 'slowtime') {
 					ball.slowtime = true;
 				}
+
+				if (power === 'deathray') {
+					self.deathray(paddle, bricks, device);
+				}
 				
 				powerbar.expire(function() {
 					ball.ubermode = false;
 					ball.slowtime = false;
+					self.deathrays = [];
 				}, 3);
 			}
 		}
@@ -142,6 +159,21 @@ Breakout.prototype.init = function(assoc) {
 	});
 };
 
+Breakout.prototype.deathray = function(paddle, bricks, device) {
+	//deathray: create a bunch of ubermode balls moving in random directions
+	//that go off the screen.
+
+	for (var c = 0; c < 8; c++) {
+		var ball = new Ball(paddle, bricks, device);
+		ball.ubermode = true;
+		ball.deathray = true;
+		ball.speed = 20;
+		this.deathrays.push(ball);
+		var xVel = util.getRandomInt(-4, 4);
+		ball.launch(xVel);
+	}
+};
+
 Breakout.prototype.update = function(device, du) {
 	if (this.gameOver) return;
 
@@ -149,24 +181,42 @@ Breakout.prototype.update = function(device, du) {
 	if (powerbar.power > 0) powerbar.add(-.02 * du);
 	if (powerbar.power < 0) powerbar.power = 0;
 
-	//new level every 100 points
-	if (globals.levelScore >= 100) {
-		ball.speed += .5;
-		paddle.vel += .7;
+	//Get a bonus if you clear the screen
+	if (bricks.isClear()) {
+		if (!this.gotClearBonus) {
+			globals.totalScore += 10000 * globals.level;
+			this.gotClearBonus = true;
+		}
+	}
+	else {
+		this.gotClearBonus = false;
+	}
+
+	//new level every 100 level points
+	if (globals.levelScore >= 50) {
+		ball.speed += .3;
+		paddle.vel += .5;
+		globals.totalScore += 1000 *globals.level;
 		globals.levelScore = 0;
 		globals.level++;
 
-		//add rows of bricks = to level (normally it's level / 2)
-		//only every few levels because otherwise ubermode goes crazy.
-		if (globals.level % 5 == 0) {
-			var bunchOfBricks = bricks.newRows(globals.level, true);
-			bricks.addBricksToTop(bunchOfBricks);
+		//add rows of bricks = to level (normally it's level / 2) only
+		//every few levels because otherwise ubermode goes crazy.  also
+		//stop at higher levels because it gets challenging in other
+		//ways.
+		if (globals.level % 3 == 0 && globals.level < 10) {
+			//var bunchOfBricks = bricks.newRows(globals.level, true);
+			//bricks.addBricksToTop(bunchOfBricks);
 		}
 	}
 
 	//update game objects.
 	paddle.update(device, du);
 	ball.update(device, du);
+
+	this.deathrays.forEach(function(deathBall) {
+		deathBall.update(device, du);
+	});
 };
 
 Breakout.prototype.render = function(device) {
@@ -177,6 +227,10 @@ Breakout.prototype.render = function(device) {
 	bricks.render(device);
 	paddle.render(device);
 	ball.render(device);
+
+	this.deathrays.forEach(function(deathBall) {
+		deathBall.render(device);
+	});
 
 	var ctx = device.ctx;
 	//render a white background so the blocks and whatnot don't render below.

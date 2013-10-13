@@ -14,7 +14,11 @@ function Bricks() {
 
 Bricks.prototype._makeBrick = function(color) {
 	var life = 1;
-	if (color == BRICK_COLORS.RED) life = 2;
+	var maxLife = 1;
+	if (color == BRICK_COLORS.RED) {
+		life = 2;
+		maxLife = 2;
+	}
 	var points = 1;
 
 	switch (color) {
@@ -32,6 +36,7 @@ Bricks.prototype._makeBrick = function(color) {
 	return {
 		color: color,
 		life: life,
+		maxLife: maxLife,
 		points: points
 	};
 };
@@ -68,15 +73,16 @@ Bricks.prototype.newRows = function(level, full) {
 	if (level < 1) level = 1;
 
 	//make level / 2 rows, up to a maximum of 8. unless we just
-	//advanced a level, then we make something special.
+	//advanced a level, then we make something special (max 16 rows).
 	if (full) {
 		var numRows = level;
 	}
 	else {
-		var numRows = Math.floor(level / 2);
+		var numRows = level;//Math.floor(level / 2);
 		if (numRows < 1) numRows = 1;
-		if (numRows > 8) numRows = 8;
 	}
+
+	if (numRows > 10) numRows = 10;
 
 	var newRows = [];
 
@@ -108,6 +114,20 @@ Bricks.prototype.addBricksToTop = function(bricks) {
 		var row = bricks[c];
 		this.bricks.unshift(row);
 	}
+};
+
+Bricks.prototype.isClear = function() {
+	for (var r = 0; r < this.bricks.length; r++) {
+		var row = this.bricks[r];
+		for (var c = 0; c < row.length; c++) {
+			var brick = this.bricks[r][c];
+			if (brick) {
+				return false;
+			}
+		}
+	}
+
+	return true;
 };
 
 Bricks.prototype.empty = function() {
@@ -174,6 +194,23 @@ Bricks.prototype.render = function(device) {
 				ctx.strokeStyle = '#333333';
 				ctx.fillRect(x, y, brickWidth, brickHeight);
 				ctx.strokeRect(x, y, brickWidth, brickHeight);
+
+				//bricks with > 1 life get darkened according to % life
+				//left.
+
+				if (brick.maxLife > 1) {
+					var percent = brick.life / brick.maxLife;
+					if (percent < 1) {
+						//the less alive it is, the darker we want it to be,
+						//since we are drawing a black rectangle over it.
+						//higher opacity = darker.
+						percent = 1 - percent;
+						ctx.save();
+						ctx.fillStyle = 'rgba(0, 0, 0, ' + percent + ')';
+						ctx.fillRect(x, y, brickWidth, brickHeight);
+						ctx.restore();
+					}
+				}
 
 				//this should definitely be in the update method,
 				//but it's easier to put it here than refactoring.

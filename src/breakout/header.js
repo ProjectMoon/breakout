@@ -59,5 +59,7 @@ var BOTTOM_OFFSET = 85;
 var globals = {
 	totalScore: 0,
 	levelScore: 0,
-	level: 1
+	level: 1,
+	games: 0,
+	previousScores: []
 };

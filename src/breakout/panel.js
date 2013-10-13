@@ -88,5 +88,22 @@ BreakoutPanel.prototype.render = function(device) {
 	ctx.fillStyle = '#AAAAFF';
 	ctx.fillRect(0, panelbricks.topSpace, filledWidth, 10);
 	ctx.restore();
+
+	//render previous score
+	if (globals.games > 0) {
+		ctx.save();
+		ctx.font = 'bold 12px arial';
+		var y = 400;
+		for (var c = globals.previousScores.length - 1; c >= 0; c--) {
+			var prevScore = globals.previousScores[c];
+			var score = prevScore.score;
+			var level = prevScore.level;
+			var num = globals.previousScores.length - c;
+			ctx.fillText(num + ': ' + score + ' (' + level + ')', 1, y);
+			y += 20;
+		}
+
+		ctx.restore();
+	}
 };
 

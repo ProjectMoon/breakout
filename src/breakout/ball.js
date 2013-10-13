@@ -13,6 +13,7 @@ function Ball(paddle, bricks, device) {
 	//various powerups that affect the ball
 	this.ubermode = false;
 	this.slowtime = false;
+	this.deathray = false;
 	
 	//ball appears on center of paddle first.
 	this.launched = false;
@@ -25,9 +26,10 @@ Ball.prototype.centerToPaddle = function() {
 	this.y = paddle.y - paddle.height + (this.radius / 2) - 3;
 };
 
-Ball.prototype.launch = function() {
-	this.xVel =  10;
-	this.yVel = -10;
+Ball.prototype.launch = function(xVel) {
+	if (xVel == undefined) xVel = 10;
+	this.xVel =  xVel;
+	this.yVel = -this.speed;
 	this.launched = true;
 	this.inCollision = true;
 };
@@ -44,7 +46,7 @@ Ball.prototype.hitbox = function() {
 };
 
 Ball.prototype.updateForCollision = function(paddle, device) {
-	if (paddle.collidesWithRect(this.hitbox())) {
+	if (paddle.collidesWithRect(this.hitbox()) && !this.deathray) {
 		if (!this.inCollision) {
 			//change x vel based on distance from paddle center.
 			//paddle.x is the center of the paddle.
@@ -129,33 +131,27 @@ Ball.prototype.update = function (device, du) {
 	// Compute my provisional new position (barring collisions)
 	var nextX = prevX + this.xVel * du;
 	var nextY = prevY + this.yVel * du;
+
+	//Edge bouncing happens for a ball unless it's a deathray.
 	
 	// Bounce off top edge
-	if (nextY < 0) {
+	if (nextY < 0 && !this.deathray) {
 		this.yVel *= -1;
 	}
 	
 	//bottom edge equals event
-	if (nextY + this.radius > device.height() - BOTTOM_OFFSET) {
+	if (nextY + this.radius > device.height() - BOTTOM_OFFSET &&
+		 !this.deathray) {
 		device.emitEvent(HIT_BOTTOM);
 	 }
 
 	// bounce off left and right edges
-	if (nextX < 0) {
+	if (nextX < 0 && !this.deathray) {
 		this.xVel *= -1;
 	}
 	
-	if (nextX > device.width()) {
+	if (nextX > device.width() && !this.deathray) {
 		this.xVel *= -1;
-	}
-
-	// Reset if we fall off the left or right edges
-	// ...by more than some arbitrary `margin`
-	//
-	var margin = 4 * this.radius;
-	if (nextX < -margin || 
-		 nextX > device.width() + margin) {
-		this.reset();
 	}
 	
 	// *Actually* update my position 
@@ -174,9 +170,22 @@ Ball.prototype.update = function (device, du) {
 Ball.prototype.render = function(device) {
 	var ctx = device.ctx;
 	ctx.save();
-	ctx.fillStyle = 'black';
-	ctx.beginPath();
-	ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-	ctx.fill();
+	if (!this.deathray) {
+		//regular ball
+		ctx.fillStyle = 'black';
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+		ctx.fill();
+	}
+	else {
+		//deathray!
+		ctx.fillStyle = '#AAAAFF';
+		ctx.strokeStyle = '#9999DD';
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.stroke();
+	}
+
 	ctx.restore();
 };
