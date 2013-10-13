@@ -23,10 +23,15 @@ BreakoutPanel.prototype.init = function(assoc) {
 		self.gameOver = state;
 	});
 
-
 	assoc.setMessageListener('upcomingBricks', function(bricks) {
 		//bricks come in as a ready-to-go 2d array.
 		panelbricks.setBricks(bricks);
+	});
+
+	assoc.setMessageListener('respawn', function() {
+		self.gameOver = false;
+		panelbricks.setBricks(null);
+		self.brickTime = 0;
 	});
 };
 

@@ -59,5 +59,5 @@ var BOTTOM_OFFSET = 85;
 var globals = {
 	totalScore: 0,
 	levelScore: 0,
-	level: 10
+	level: 1
 };
