@@ -1,22 +1,3 @@
-/*
-TODO:
- - deathray
- - debuff blocks: smaller paddle, mirror controls, dubstep?
- - darken blocks that are < max life.
- - implement proper respawn
- - spinning black hole type background image (blue of course)
- - random black holes that pull the ball towards it?
-
- cool things (need 6):
- - powerup meter
- - constant levels a la tetris
- - deathray
- - ubermode
- - slowtime
- - next set of blocks preview
- - score based on how far you get per level
- */
-
 var paddle;
 var ball;
 var bricks;
