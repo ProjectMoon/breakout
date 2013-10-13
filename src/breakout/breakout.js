@@ -167,6 +167,10 @@ Breakout.prototype.update = function(device, du) {
 Breakout.prototype.render = function(device) {
 	if (this.gameOver) return;
 	device.clear();
+	
+	bricks.render(device);
+	paddle.render(device);
+	ball.render(device);
 
 	//draw bottom line separating power bar and selector from the game
 	//field.
@@ -178,12 +182,17 @@ Breakout.prototype.render = function(device) {
 	ctx.lineTo(device.width(), device.height() - BOTTOM_OFFSET);
 	ctx.lineWidth = 10;
 	ctx.stroke();
+	
+	ctx.restore();
+
+	//render a white background so the blocks and whatnot don't render below.
+	ctx.save();
+	ctx.fillStyle = 'white';
+	var x = 0, y = device.height() - BOTTOM_OFFSET;
+	ctx.fillRect(x, y, device.width(), BOTTOM_OFFSET);
 	ctx.restore();
 	
-	bricks.render(device);
 	powerbar.render(device);
 	powerselector.render(device);
-	paddle.render(device);
-	ball.render(device);
 };
 

@@ -24,6 +24,7 @@ PowerSelector.prototype.render = function(device) {
 	var ctx = device.ctx;
 	var x = 0;
 	var y = device.height() - halfHeight;
+
 	for (var c = 0; c < this.powers.length; c++) {
 		var power = this.powers[c];
 		ctx.save();

@@ -61,6 +61,7 @@ Powerbar.prototype.render = function(device) {
 
 	ctx.strokeStyle = '#555555';
 	ctx.strokeRect(0, height - barHeight - above, width, barHeight);
+
 	ctx.fillStyle = '#0055AA';
 	ctx.fillRect(0, height - barHeight - above, filledWidth, barHeight);
 
