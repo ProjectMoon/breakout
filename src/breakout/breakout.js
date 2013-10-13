@@ -23,7 +23,7 @@ Breakout.prototype.init = function(env) {
 	paddle = new Paddle();
 	bricks = new Bricks();
 	ball = new Ball(paddle, bricks, env.device);
-	powerbar = new Powerbar(0, 10);
+	powerbar = new Powerbar(10, 10);
 	powerselector = new PowerSelector();
 
 	var self = this;

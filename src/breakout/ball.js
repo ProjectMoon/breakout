@@ -160,8 +160,14 @@ Ball.prototype.update = function (device, du) {
 	// *Actually* update my position 
 	// ...using whatever velocity I've ended up with
 	//
-	this.x += this.xVel;
-	this.y += this.yVel;
+	if (!this.slowtime) {
+		this.x += this.xVel;
+		this.y += this.yVel;
+	}
+	else {
+		this.x += this.xVel * .2;
+		this.y += this.yVel * .2;
+	}
 };
 
 Ball.prototype.render = function(device) {
