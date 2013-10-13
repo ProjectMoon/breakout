@@ -172,9 +172,17 @@ Breakout.prototype.render = function(device) {
 	paddle.render(device);
 	ball.render(device);
 
+	var ctx = device.ctx;
+	//render a white background so the blocks and whatnot don't render below.
+	ctx.save();
+	ctx.fillStyle = 'white';
+	var x = 0, y = device.height() - BOTTOM_OFFSET;
+	ctx.fillRect(x, y, device.width(), BOTTOM_OFFSET);
+	ctx.restore();
+
 	//draw bottom line separating power bar and selector from the game
 	//field.
-	var ctx = device.ctx;
+
 	ctx.save();
 
 	ctx.beginPath();
@@ -183,13 +191,6 @@ Breakout.prototype.render = function(device) {
 	ctx.lineWidth = 10;
 	ctx.stroke();
 	
-	ctx.restore();
-
-	//render a white background so the blocks and whatnot don't render below.
-	ctx.save();
-	ctx.fillStyle = 'white';
-	var x = 0, y = device.height() - BOTTOM_OFFSET;
-	ctx.fillRect(x, y, device.width(), BOTTOM_OFFSET);
 	ctx.restore();
 	
 	powerbar.render(device);
