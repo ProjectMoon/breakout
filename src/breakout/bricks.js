@@ -6,11 +6,10 @@ var BRICK_COLORS = {
 };
 
 function Bricks() {
-	this.bricks = [];
+	this.empty();
 	this.topSpace = 100;
 	this.spacing = 2;
 	this.brickHeight = 15;
-	this._makeLevel();
 }
 
 Bricks.prototype._makeBrick = function(color) {
@@ -37,7 +36,7 @@ Bricks.prototype._makeBrick = function(color) {
 	};
 };
 
-Bricks.prototype._makeLevel = function() {
+Bricks.prototype.makeLevel = function() {
 	for (var c = 0; c < 8; c++) {
 		this.bricks[c] = [];
 
@@ -80,7 +79,25 @@ Bricks.prototype.newRow = function() {
 		}
 	}
 
-	this.bricks.unshift(newRow);
+	return newRow;
+};
+
+Bricks.prototype.addBricksToTop = function(bricks) {
+	this.bricks.unshift(bricks);
+};
+
+Bricks.prototype.empty = function() {
+	this.bricks = [];
+	this.bricks[0] = [];
+};
+
+Bricks.prototype.setBricks = function(bricks) {
+	if (bricks != null && bricks != undefined) {
+		this.bricks = bricks;
+	}
+	else {
+		this.empty();
+	}
 };
 
 Bricks.prototype.getHitbox = function(r, c, brickWidth, brickHeight) {

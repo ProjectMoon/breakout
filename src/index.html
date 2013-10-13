@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link href="index.css" type="text/css" rel="stylesheet" />
+		
 		<script type="text/javascript" src="device.js"></script>
 		<script type="text/javascript" src="environment.js"></script>
 		<script type="text/javascript" src="game.js"></script>
@@ -12,14 +14,18 @@
 		<script type="text/javascript" Src="breakout/bricks.js"></script>
 		<script type="text/javascript" src="breakout/paddle.js"></script>
 		<script type="text/javascript" src="breakout/ball.js"></script>
+		<script type="text/javascript" src="breakout/panel.js"></script>
 		<script type="text/javascript" src="breakout/breakout.js"></script>
 		
 		<script type="text/javascript" src="main.js"></script>
 	</head>
 	<body>
-		<canvas id="canvas" width="800" height="850" style="border: 1px solid black">
+		<canvas id="breakout" width="800" height="850">
 			Your browser doesn't support canvas.
 		</canvas>
-		<div id="info"></div>
+
+		<canvas id="panel" width="200" height="850">
+			Your brower doesn't support canvas.
+		</canvas>
 	</body>
 </html>

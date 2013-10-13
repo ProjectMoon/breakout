@@ -46,12 +46,12 @@ Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
 
 //methods
 Breakout.prototype.init = function(assoc) {
-	assoc.sendMessage('panel', 'newblock', {});
 	var device = assoc.device;
 	device.defineKeys(BINDS);
 
 	paddle = new Paddle();
 	bricks = new Bricks();
+	bricks.makeLevel();
 	ball = new Ball(paddle, bricks, device);
 	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
@@ -112,12 +112,19 @@ Breakout.prototype.init = function(assoc) {
 		else {
 			ball.launch();
 
-			//every 10 seconds, generate a new row of bricks.
-			//here so it doesn't start until we launch.
-			newBlockTimer = setInterval(function() {
-				bricks.newRow();
-			}, 10 * 1000);
+			//start up the preview/brick adding system.
+			var newBricks = bricks.newRow();
+			assoc.sendMessage('panel', 'upcomingBricks', newBricks);
 		}
+	});
+
+	//new bricks when the panel tells us it's time
+	//then we immediately generate a new row for previewing
+	//(to be added to the top in 8 sec)
+	assoc.setMessageListener('newBricks', function(newBricks) {
+		bricks.addBricksToTop(newBricks);
+		var newBricks = bricks.newRow();
+		assoc.sendMessage('panel', 'upcomingBricks', newBricks);
 	});
 
 	//select powers
@@ -162,14 +169,6 @@ Breakout.prototype.render = function(device) {
 	ctx.lineTo(device.width(), device.height() - BOTTOM_OFFSET);
 	ctx.lineWidth = 10;
 	ctx.stroke();
-	ctx.restore();
-
-	//score
-	ctx.save();
-	ctx.textAlign = 'center';
-	ctx.textBaseline = 'middle';
-	ctx.font = 'bold 30px arial';
-	ctx.fillText(totalScore, device.width() / 2, 15);
 	ctx.restore();
 	
 	bricks.render(device);

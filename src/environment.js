@@ -154,7 +154,7 @@
 		this._messageListeners[messageName] = callback;
 	};
 
-	Assoc.prototype.receiveMesasge = function(messageName, message) {
+	Assoc.prototype.receiveMessage = function(messageName, message) {
 		var listener = this._messageListeners[messageName];
 
 		if (listener) {

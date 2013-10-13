@@ -6,7 +6,7 @@ window.requestAnimationFrame =
 //async load various assets: images, etc.
 function acquireAssets(callback) {
 	//device: what handles draw and input
-	var device = new BrowserDevice('canvas', 16.666, 400, 400);
+
 
 	//game assets: things the game needs to run
 	var assets = {
@@ -16,7 +16,6 @@ function acquireAssets(callback) {
 	};
 
 	var collection = {
-		device: device,
 		assets: assets
 	};
 	
@@ -24,13 +23,16 @@ function acquireAssets(callback) {
 }
 
 window.onload = function() {
-	acquireAssets(function(collection) {	
+	acquireAssets(function(collection) {
+		var breakout = new BrowserDevice('breakout', 16.666);
+		var panel = new BrowserDevice('panel', 16.666);
 		var env = new Environment({
 			name: 'breakout',
-			device: collection.device,
+			devices: [ breakout, panel ],
 			assets: collection.assets,
 			associations: {
-				canvas: Breakout
+				breakout: Breakout,
+				panel: BreakoutPanel
 			}
 		});
 

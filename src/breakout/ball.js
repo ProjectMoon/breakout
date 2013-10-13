@@ -57,6 +57,7 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 			if (this.x < paddle.x) this.xVel = -Math.abs(this.xVel);
 			else this.xVel = Math.abs(this.xVel);
 
+			//always force upward.
 			this.yVel *= -1;
 			
 			this.inCollision = true;
