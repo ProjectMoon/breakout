@@ -198,9 +198,7 @@
 			this.game.update(this.device, du);
 		}
 
-		if (this.device.isRenderingEnabled()) {
-			this.game.render(this.device);
-		}
+		this.game.render(this.device);
 
 		this.device.requestAnimationFrame(this._boundFrame);
 	};

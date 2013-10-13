@@ -12,7 +12,7 @@ var PAUSE = 'PAUSE';
 var STEP = 'STEP';
 var FLIP_FLOP = 'FLIP_FLOP';
 var SHOW_TIMERS = 'SHOW_TIMERS';
-var RENDER = 'RENDER';
+var STOP_RENDER = 'RENDER';
 var DRAW_BOX = 'DRAW_BOX';
 
 //key bindings
@@ -41,7 +41,7 @@ var DEBUG_BINDS = {
 	O: [ Device.KEY_TYPE_EMIT_ONCE, STEP ],
 	F: [ Device.KEY_TYPE_TOGGLE, FLIP_FLOP ],
 	T: [ Device.KEY_TYPE_TOGGLE, SHOW_TIMERS ],
-	R: [ Device.KEY_TYPE_TOGGLE, RENDER ],
+	R: [ Device.KEY_TYPE_TOGGLE, STOP_RENDER ],
 	B: [ Device.KEY_TYPE_TOGGLE, DRAW_BOX ]
 };
 

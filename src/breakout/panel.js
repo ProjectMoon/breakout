@@ -48,9 +48,11 @@ BreakoutPanel.prototype.update = function(device, du) {
 
 BreakoutPanel.prototype.render = function(device) {
 	if (this.gameOver) return;
-	
+
 	device.clear();
 
+	if (!device.isRenderingEnabled()) return;
+	
 	var ctx = device.ctx;
 
 	//render score and level

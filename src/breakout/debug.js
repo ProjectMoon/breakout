@@ -49,7 +49,27 @@ Debug.prototype.init = function(assoc) {
 		});
 	});
 
-	
+	device.addInputListener(STOP_RENDER, function(evt) {
+		device.devicesToDebug.forEach(function(deviceToDebug) {
+			if (evt.toggle == true) {
+				deviceToDebug.disableRendering();
+			}
+			else {
+				deviceToDebug.enableRendering();
+			}
+		});
+	});
+
+	device.addInputListener(STOP_CLEAR, function(evt) {
+		device.devicesToDebug.forEach(function(deviceToDebug) {
+			if (evt.toggle == true) {
+				deviceToDebug.disableClearing();
+			}
+			else {
+				deviceToDebug.enableClearing();
+			}
+		});
+	});
 };
 
 Debug.prototype.update = function(device, du) {

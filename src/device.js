@@ -8,11 +8,11 @@ function Device() {
 	this.keys = {};
 
 	//whether or not to respect calls to the clear command.
-	this.clear = true;
 
 	//private variables to be accessible via method calls.
 	this._render = true;
 	this._pause = false;
+	this._clear = true;
 	
 	
 	this._frames = {};
@@ -214,6 +214,22 @@ Device.prototype.requestAnimationFrame = function() {
 };
 
 //debug thingies.
+Device.prototype.enableClearing = function() {
+	this._clear = true;
+};
+
+Device.prototype.disableClearing = function() {
+	this._clear = false;
+};
+
+Device.prototype.isClearingEnabled = function() {
+	return this._clear;
+};
+
+//Enable and disable rendering.  Note that it is up to the application
+//to respond to this.  The Environment cannot control rendering
+//without also controlling clearing, which if it does, causes problems
+//when using debug devices.
 Device.prototype.enableRendering = function() {
 	this._render = true;
 };
@@ -298,7 +314,7 @@ BrowserDevice.prototype.init = function() {
 };
 
 BrowserDevice.prototype.clear = function() {
-	if (this.clear) {
+	if (this._clear) {
 		this.ctx.clearRect(0, 0, this.width(), this.height());
 	}
 };

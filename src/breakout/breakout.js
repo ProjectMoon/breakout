@@ -169,6 +169,7 @@ Breakout.prototype.update = function(device, du) {
 Breakout.prototype.render = function(device) {
 	if (this.gameOver) return;
 	device.clear();
+	if (!device.isRenderingEnabled()) return;
 	
 	bricks.render(device);
 	paddle.render(device);
