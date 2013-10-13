@@ -31,17 +31,25 @@ Debug.prototype.init = function(assoc) {
 	device.addInputListener(PAUSE, function(evt) {
 		console.log('pausing ' + evt.toggle);
 		if (evt.toggle == true) {
-			device.deviceToDebug.pause();
+			device.devicesToDebug.forEach(function(deviceToDebug) {
+				deviceToDebug.pause();
+			});
 		}
 		else {
-			device.deviceToDebug.unpause();
+			device.devicesToDebug.forEach(function(deviceToDebug) {
+				deviceToDebug.unpause();
+			});
 		}
 	});
 
 	device.addInputListener(STEP, function(evt) {
 		console.log('step');
-		device.deviceToDebug.queueStep();
+		device.devicesToDebug.forEach(function(deviceToDebug) {
+			deviceToDebug.queueStep();
+		});
 	});
+
+	
 };
 
 Debug.prototype.update = function(device, du) {

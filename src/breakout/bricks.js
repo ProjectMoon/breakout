@@ -124,6 +124,10 @@ Bricks.prototype.setBricks = function(bricks) {
 	}
 };
 
+Bricks.prototype.hasBricks = function() {
+	return !(this.bricks.length == 1 && this.bricks[0].length == 0);
+};
+
 Bricks.prototype.getHitbox = function(r, c, brickWidth, brickHeight) {
 	var x = c * brickWidth;
 	var y = (r * brickHeight) + this.topSpace;

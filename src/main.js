@@ -27,10 +27,9 @@ window.onload = function() {
 		var breakoutDevice = new BrowserDevice('breakout', 16.666);
 		var panelDevice = new BrowserDevice('panel', 16.666);
 
-		//browser device auto sets name to the id of the canvas.
-		//but we are sneaky.
-		var debugDevice = new BrowserDebugDevice('debug', breakoutDevice);
-		debugDevice.name = 'debug';
+		var debugDevice = new BrowserDebugDevice('debug', breakoutDevice, [
+			breakoutDevice, panelDevice
+		]);
 		
 		var env = new Environment({
 			name: 'breakout',

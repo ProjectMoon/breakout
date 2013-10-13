@@ -324,13 +324,14 @@ BrowserDevice.prototype.emitEvent = function(eventName, evt) {
 };
 
 //A device to debug a browser device.
-function BrowserDebugDevice(name, deviceToDebug) {
-	if (!(deviceToDebug instanceof BrowserDevice))
-		throw new Error('deviceToDebug is not a BrowserDevice');
+function BrowserDebugDevice(name, hook, devicesToDebug) {
+	if (!(hook instanceof BrowserDevice))
+		throw new Error('hook is not a BrowserDevice');
 	
 	this.name = name;
-	this.graphicsAPI = deviceToDebug.graphicsAPI;
-	this.deviceToDebug = deviceToDebug;
+	this.graphicsAPI = hook.graphicsAPI;
+	this.hook = hook;
+	this.devicesToDebug = devicesToDebug;
 	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
 }
 
@@ -341,50 +342,46 @@ BrowserDebugDevice.prototype.init = function() {
 };
 
 BrowserDebugDevice.prototype.clear = function() {
-	return this.deviceToDebug.clear();
+	return this.hook.clear();
 };
 
 BrowserDebugDevice.prototype.height = function() {
-	return this.deviceToDebug.height();
+	return this.hook.height();
 };
 
 BrowserDebugDevice.prototype.width = function() {
-	return this.deviceToDebug.width();
+	return this.hook.width();
 };
 
 BrowserDebugDevice.prototype.addEventListener = function(eventName, callback) {
-	this.deviceToDebug.addEventListener(eventName, callback);
+	this.hook.addEventListener(eventName, callback);
 };
 
 BrowserDebugDevice.prototype.emitEvent = function(eventName, evt) {
-	this.deviceToDebug.emitEvent(eventName, evt);
-};
-
-BrowserDebugDevice.prototype.isRenderingEnabled = function() {
-	return false;
+	this.hook.emitEvent(eventName, evt);
 };
 
 BrowserDebugDevice.prototype.defineKey = function(keyCharacter, keyType, keyName) {
-	this.deviceToDebug.defineKey(keyCharacter, keyType, keyName);
+	this.hook.defineKey(keyCharacter, keyType, keyName);
 };
 
 BrowserDebugDevice.prototype.defineKeys = function(keys) {
-	this.deviceToDebug.defineKeys(keys);
+	this.hook.defineKeys(keys);
 };
 
 BrowserDebugDevice.prototype.isKeyHeld = function(keyName) {
-	return this.deviceToDebug.isKeyHeld(keyName);
+	return this.hook.isKeyHeld(keyName);
 };
 
 BrowserDebugDevice.prototype.pressKey = function(keyCode) {
-	this.deviceToDebug.pressKey(keyCode);
+	this.hook.pressKey(keyCode);
 };
 
 BrowserDebugDevice.prototype.unpressKey = function(keyCode) {
-	this.deviceToDebug.unpressKey(keyCode);
+	this.hook.unpressKey(keyCode);
 };
 
 BrowserDebugDevice.prototype.addInputListener = function(keyName, callback) {
-	this.deviceToDebug.addInputListener(keyName, callback);
+	this.hook.addInputListener(keyName, callback);
 };
 

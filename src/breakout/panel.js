@@ -3,6 +3,7 @@ var panelbricks = new Bricks();
 function BreakoutPanel() {
 	console.log('BreakoutPanel loaded.');
 	this.gameOver = false;
+	this.brickTime = 0;
 }
 
 BreakoutPanel.prototype = new Game;
@@ -14,6 +15,7 @@ BreakoutPanel.prototype.supportedGraphics = [ 'canvas2d' ];
 
 //methods
 BreakoutPanel.prototype.init = function(assoc) {
+	this.assoc = assoc;
 	var device = assoc.device;
 
 	var self = this;
@@ -25,18 +27,23 @@ BreakoutPanel.prototype.init = function(assoc) {
 	assoc.setMessageListener('upcomingBricks', function(bricks) {
 		//bricks come in as a ready-to-go 2d array.
 		panelbricks.setBricks(bricks);
-		setTimeout(function() {
-			if (!self.gameOver) {
-				assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks);
-				panelbricks.setBricks(null);
-			}
-		}, 8 * 1000);
 	});
 };
 
 BreakoutPanel.prototype.update = function(device, du) {
 	if (this.gameOver) return;
 
+	//originally was configured to message pass back after 8 sec, via
+	//setTimeout but to work with pausing we must use update instead.
+	if (panelbricks.hasBricks()) {
+		this.brickTime += du;
+
+		if (this.brickTime > 900 * du) {
+			this.assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks);
+			panelbricks.setBricks(null);
+			this.brickTime = 0;
+		}
+	}
 };
 
 BreakoutPanel.prototype.render = function(device) {
