@@ -5,6 +5,7 @@
  */
 function Device() {
 	this.keys = {};
+	this._frames = {};
 	this._namesToKeys = {};
 }
 
@@ -17,6 +18,9 @@ function Device() {
 Device.KEY_TYPE_HOLD = 0;
 Device.KEY_TYPE_EMIT = 1;
 Device.KEY_TYPE_EMIT_ONCE = 2;
+
+//basic properties to be overridden.
+Device.prototype.name = 'unknown';
 
 Device.prototype.defineKey = function(keyCharacter, keyType, keyName) {
 	var keyCode = keyCharacter.charCodeAt(0);
@@ -130,7 +134,6 @@ Device.prototype.emitEvent = function(eventName, evt) {
 	throw new Error('No device emitEvent function implemented.');
 };
 
-
 /**
  * Responsible for initializing the device's keyboard and graphics
  * handling capabilities.
@@ -160,12 +163,17 @@ Device.prototype.width = function() {
 	throw new Error('No device width function implemented.');
 };
 
+Device.prototype.requestAnimationFrame = function() {
+	throw new Error('No device requestAnimationFrame function implemented');
+};
+
 /**
  * A basic device implementation for the browser.
  */
 function BrowserDevice(id, refreshRate) {
-	//set a custom property and the refresh rate.
+	//set a custom property, device name, and refresh rate.
 	this.id = id;
+	this.name = id;
 	this.refreshRate = refreshRate;
 }
 

@@ -3,51 +3,6 @@
  */
 
 (function(window) {
-	var EnvironmentMgr = {};
-	
-	//A key -> list of ordered declarations and env calls.
-	//Each key is an environment name, that has a list of things
-	//to be processed in order.
-	EnvironmentMgr._declared = {};
-	EnvironmentMgr._envCalls = {};
-
-	//Key-value pairs for single properties.
-	EnvironmentMgr._devices = {};
-	EnvironmentMgr._assets = {};
-	EnvironmentMgr._games = {};
-
-	EnvironmentMgr.describe = function(name, descr) {
-		EnvironmentMgr._devices[name] = descr.device;
-		EnvironmentMgr._assets[name] = descr.assets;
-		EnvironmentMgr._games[name] = descr.game;
-	};
-
-	EnvironmentMgr.declare = function(name, values) {
-		var list = EnvironmentMgr._declared[name];
-		if (!list) list = EnvironmentMgr._declared[name] = [];
-		list.push(values);
-	};
-
-	EnvironmentMgr.env = function(name, callback) {
-		var calls = EnvironmentMgr._envCalls[name];
-		if (!calls) calls = EnvironmentMgr._envCalls[name] = [];
-		calls.push(callback);
-	};
-
-	EnvironmentMgr.start = function(name) {
-		var env = new Environment({
-			name: name,
-			device: EnvironmentMgr._devices[name],
-			assets: EnvironmentMgr._assets[name],
-			game: EnvironmentMgr._games[name]
-		});
-
-		//associate this environment with its name, so it can be
-		//acccessed by objects relating to said game.
-		EnvironmentMgr[name] = env;
-
-		env.start();
-	};
 	/**
 	 * Construct new environment. The descriptor expects a device, game
 	 * assets, and an actual game definition.
@@ -56,59 +11,59 @@
 	 */
 	function Environment(descr) {
 		if (!descr.name) throw new Error('No name declared for environment');
-		if (!descr.device) throw new Error('No device present');
 		if (!descr.assets) throw new Error('No game assets provided');
-		if (!(descr.device instanceof Device))
-			throw new Error('Expected a Device');
+		if (!descr.associations) throw new Error('No associations provided');
+		if (!descr.device && !('devices' in descr)) {
+			throw new Error('No device(s) present');
+		}
+
+		//only check device instance if we are not providing multiple devices.
+		if (!('devices' in descr)) {
+			if (!(descr.device instanceof Device))
+				throw new Error('Expected a Device');
+		}
 
 		this.name = descr.name;
-		this.device = descr.device;
+		if (descr.device)	this.devices = [ descr.device ];
+		else this.devices = descr.devices;
 		this.assets = descr.assets;
-		
-		this.clock = {
-			time: null,
-			delta: null
-		};
 
-		//any declarations?
-		this.env = {};
-		if (EnvironmentMgr._declared[descr.name]) {
-			var valueList = EnvironmentMgr._declared[descr.name];
-			var self = this;
-			
-			valueList.forEach(function(values) {
-				for (var key in values) {
-					self.env[key] = values[key];
+		//create associations. each assoc is an isolated game
+		//environment of sorts.
+		var self = this;
+		this.assoc = {};
+		var deviceNames = Object.keys(descr.associations);
+
+		deviceNames.forEach(function(deviceName) {
+			var device = null;
+
+			for (var c = 0; c < self.devices.length; c++) {
+				if (self.devices[c].name === deviceName) {
+					device = self.devices[c];
+					break;
 				}
-			});
+			}
 
-			delete EnvironmentMgr._declared[descr.name];
-		}
+			if (device == null) {
+				throw new Error('Invalid device name ' + deviceName);
+			}
 
-		//any env calls?
-		if (EnvironmentMgr._envCalls[descr.name]) {
-			var callList = EnvironmentMgr._envCalls[descr.name];
-			var self = this;
-			
-			callList.forEach(function(call) {
-				var exports = call(self.env);
-				if (exports) {
-					for (var key in exports) {
-						self.env[key] = exports[key];
-					}
+			var game = descr.associations[deviceName];
+			if (!game) throw new Error('No game definition found');
+
+			//object that holds the game, device, and clock for this
+			//particular device.
+			var assoc = {
+				device: device,
+				game: new game,
+				clock: {
+					time: null,
+					delta: null
 				}
-			});
+			};
 
-			delete EnvironmentMgr._envCalls[descr.name];
-		}
-
-		//check for game definition.
-		var game = descr.game;
-		if (!game) throw new Error('No game definition found');
-		this.game = new game;
-		delete EnvironmentMgr._devices[descr.name];
-		delete EnvironmentMgr._assets[descr.name];
-		delete EnvironmentMgr._games[descr.game];
+			self.assoc[deviceName] = assoc;
+		});
 	}
 
 	/**
@@ -116,33 +71,47 @@
 	 */
 	Environment.prototype.start = function() {
 		this.init();
-		this._boundFrame = this.frame.bind(this);
-		this.device.requestAnimationFrame(this._boundFrame);
+		for (deviceName in this.assoc) {
+			var assoc = this.assoc[deviceName];
+
+			//the "this" context of the frame function will always
+			//be the assoc.
+			assoc._boundFrame = this.frame.bind(assoc);
+			assoc.device.requestAnimationFrame(assoc._boundFrame);
+		}
 	};
 
 	/**
 	 * Initialize the environment.
 	 */
 	Environment.prototype.init = function() {
-		var devInit = this.device.init.bind(this.device);
-		var success = devInit();
+		var self = this;
+		this.devices.forEach(function(device) {
+			var devInit = device.init.bind(device);
+			var success = devInit();
+			
+			if (!success) {
+				throw new Error('Device did not initialize successfully');
+			}
 
-		//API check.
-		if (this.game.supportedGraphics.indexOf(this.device.graphicsAPI) == -1) {
-			throw new Error('Device uses ' + this.device.graphicsAPI + ', but game ' +
-								 'does not support it.');
-		}
+			//API check.
+			var assoc = self.assoc[device.name];
+			var game = assoc.game;
+			if (game.supportedGraphics.indexOf(device.graphicsAPI) == -1) {
+				throw new Error('Device uses ' + device.graphicsAPI +
+									 ', but game does not support it.');
+			}
 
-		if (!success) {
-			throw new Error('Device did not initialize successfully');
-		}
-
-		this.game.init(this);
+			//Init game.
+			game.init(assoc);
+		});
 	};
 
 	/**
-	 * Process a single frame. That is, calculate delta time and delegate
-	 * to the game handler.
+	 * Process a single frame. That is, calculate delta time and
+	 * delegate to the game handler. The "this" context in this
+	 * function is not actually the Environment. Rather, it is the
+	 * association (containing clock, device, game instance).
 	 * @param {number} time - the current time at the moment of this frame.
 	 */
 	Environment.prototype.frame = function(time) {
@@ -168,6 +137,6 @@
 		this.device.requestAnimationFrame(this._boundFrame);
 	};
 
-	window.Environment = EnvironmentMgr;
+	window.Environment = Environment;
 
 })(window);

@@ -29,6 +29,8 @@ var bricks;
 var powerbar;
 var powerselector;
 var newBlockTimer;
+var totalScore;
+var levelScore;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -43,24 +45,28 @@ Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
 //keynames
 
 //methods
-Breakout.prototype.init = function(env) {
-	env.device.defineKeys(BINDS);
+Breakout.prototype.init = function(assoc) {
+	var device = assoc.device;
+	device.defineKeys(BINDS);
 
 	paddle = new Paddle();
 	bricks = new Bricks();
-	ball = new Ball(paddle, bricks, env.device);
+	ball = new Ball(paddle, bricks, device);
 	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
+	levelScore = 0;
+	totalScore = 0;
+	
 
 	var self = this;
-	env.device.addEventListener(HIT_BOTTOM, function() {
+	device.addEventListener(HIT_BOTTOM, function() {
 		//game over
 		console.log('game over');
 		self.gameOver = true;
 		clearInterval(newBlockTimer);
 	});
 
-	env.device.addEventListener(HIT_BRICK, function(evt) {
+	device.addEventListener(HIT_BRICK, function(evt) {
 		evt.brick.life -= ball.power;
 		if (!ball.ubermode) {
 			powerbar.add(1);
@@ -68,28 +74,21 @@ Breakout.prototype.init = function(env) {
 		}
 		
 		if (evt.brick.life <= 0) {
+			//remove brick from the grid.
 			bricks.bricks[evt.r][evt.c] = null;
 
 			if (!powerbar.isMaxPower()) {
 				powerbar.add(2, 'kill');
 				powerbar.lock(.5, 'kill');
 			}
-		}
 
-		//ubermode makes the speed go up way too fast
-		//otherwise.
-		if (!ball.ubermode) {
-			ball.speed += .1;
-			paddle.vel += .15;
-		}
-		else {
-			ball.speed += .02;
-			paddle.vel += .025;
+			totalScore += evt.brick.points;
+			levelScore += evt.brick.points;
 		}
 	});
 
 	//serves 2 purposes: launch the ball at the start, and use powers.
-	env.device.addInputListener(LAUNCH, function(keyCode) {
+	device.addInputListener(LAUNCH, function(keyCode) {
 		if (ball.launched) {
 			if (powerbar.isMaxPower()) {
 				var power = powerselector.getSelected();
@@ -121,34 +120,39 @@ Breakout.prototype.init = function(env) {
 	});
 
 	//select powers
-	env.device.addInputListener(POWER_LEFT, function(keyCode) {
+	device.addInputListener(POWER_LEFT, function(keyCode) {
 		powerselector.move(-1);
 	});
 
-	env.device.addInputListener(POWER_RIGHT, function(keyCode) {
+	device.addInputListener(POWER_RIGHT, function(keyCode) {
 		powerselector.move(1);
 	});
 };
 
 Breakout.prototype.update = function(device, du) {
 	if (this.gameOver) return;
+
+	//Reduce power slightly. gotta keep hitting bricks!
 	if (powerbar.power > 0) powerbar.add(-.02 * du);
 	if (powerbar.power < 0) powerbar.power = 0;
-	
-	paddle.update(device, du);
 
-	if (!ball.slowtime) {
-		ball.update(device, du);
+	//new level every 100 points
+	if (levelScore >= 100) {
+		ball.speed += 2;
+		paddle.vel += 3;
+		levelScore = 0;
 	}
-	else {
-		ball.update(device, du / 8);
-	}
+
+	//update game objects.
+	paddle.update(device, du);
+	ball.update(device, du);
 };
 
 Breakout.prototype.render = function(device) {
 	device.clear();
 
-	//draw bottom line
+	//draw bottom line separating power bar and selector from the game
+	//field.
 	var ctx = device.ctx;
 	ctx.save();
 
@@ -157,6 +161,14 @@ Breakout.prototype.render = function(device) {
 	ctx.lineTo(device.width(), device.height() - BOTTOM_OFFSET);
 	ctx.lineWidth = 10;
 	ctx.stroke();
+	ctx.restore();
+
+	//score
+	ctx.save();
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	ctx.font = 'bold 30px arial';
+	ctx.fillText(totalScore, device.width() / 2, 15);
 	ctx.restore();
 	
 	bricks.render(device);

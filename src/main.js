@@ -25,13 +25,17 @@ function acquireAssets(callback) {
 
 window.onload = function() {
 	acquireAssets(function(collection) {	
-		Environment.describe('breakout', {
+		var env = new Environment({
+			name: 'breakout',
 			device: collection.device,
 			assets: collection.assets,
-			game: Breakout
+			associations: {
+				canvas: Breakout
+			}
 		});
+
 		
-		Environment.start('breakout');
+		env.start();
 	});
 };
 
