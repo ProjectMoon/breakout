@@ -14,6 +14,7 @@ var FLIP_FLOP = 'FLIP_FLOP';
 var SHOW_TIMERS = 'SHOW_TIMERS';
 var STOP_RENDER = 'RENDER';
 var DRAW_BOX = 'DRAW_BOX';
+var UNDO_BOX = 'UNDO_BOX';
 
 //key bindings
 var BINDS = {
@@ -42,7 +43,8 @@ var DEBUG_BINDS = {
 	F: [ Device.KEY_TYPE_TOGGLE, FLIP_FLOP ],
 	T: [ Device.KEY_TYPE_TOGGLE, SHOW_TIMERS ],
 	R: [ Device.KEY_TYPE_TOGGLE, STOP_RENDER ],
-	B: [ Device.KEY_TYPE_TOGGLE, DRAW_BOX ]
+	B: [ Device.KEY_TYPE_TOGGLE, DRAW_BOX ],
+	U: [ Device.KEY_TYPE_TOGGLE, UNDO_BOX ]
 };
 
 //event names

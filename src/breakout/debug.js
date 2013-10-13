@@ -2,12 +2,7 @@
 TODO:
  - replicate the debug stuff in the pong framework:
     * C = stop clearing
-    * P = pause
-    * O = single step if paused.
-    * F = weird debug frame thingy
     * Q = quit (gameover)
-    * T = show timers (current time, delta, previous time)
-    * R = toggle rendering
     * B = draw a red box
  */
 
@@ -15,6 +10,10 @@ function Debug() {
 	console.log('Debug module loaded.');
 	this.gameOver = false;
 	this.showTimers = false;
+	this.flipflop = false;
+	this.drawbox = false;
+	this.undobox = false;
+	this.frameCount = 0;
 }
 
 Debug.prototype = new Game;
@@ -77,18 +76,31 @@ Debug.prototype.init = function(assoc) {
 	device.addInputListener(SHOW_TIMERS, function(evt) {
 		self.showTimers = evt.toggle;
 	});
+
+	device.addInputListener(FLIP_FLOP, function(evt) {
+		self.flipflop = evt.toggle;
+	});
+
+	device.addInputListener(DRAW_BOX, function(evt) {
+		self.drawbox = evt.toggle;
+	});
+
+	device.addInputListener(UNDO_BOX, function(evt) {
+		self.undobox = evt.toggle;
+	});
 };
 
 Debug.prototype.update = function(device, du) {
 	if (this.gameOver) return;
-
+	this.frameCount++;
 };
 
 Debug.prototype.render = function(device) {
 	if (this.gameOver) return;
 
+	var ctx = device.ctx;
+	
 	if (this.showTimers) {
-		var ctx = device.ctx;
 		var y = 350;
 		var assocNames = Object.keys(device.assocs);
 		
@@ -102,5 +114,33 @@ Debug.prototype.render = function(device) {
 			y += 60;
 		});
 	}
+
+	if (this.flipflop) {
+      var boxX = 250,
+          boxY = (this.frameCount % 2 == 0) ? 100 : 200;
+      
+      // Draw flip-flop box
+      this._fillBox(ctx, boxX, boxY, 50, 50, "green");
+      
+      // Display the current frame-counter in the box...
+      ctx.fillText(this.frameCount % 1000, boxX + 10, boxY + 20);
+      // ..and its odd/even status too
+      var text = this.frameCount  % 2 ? "odd" : "even";
+      ctx.fillText(text, boxX + 10, boxY + 40);
+	}
+
+	if (this.drawbox) {
+		this._fillBox(ctx, 200, 200, 50, 50, "red");
+	}
+
+	if (this.undobox) {
+		ctx.clearRect(200, 200, 50, 50);
+	}
 };
 
+Debug.prototype._fillBox = function fillBox(ctx, x, y, w, h, style) {
+    var oldStyle = ctx.fillStyle;
+    ctx.fillStyle = style;
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = oldStyle;
+};
