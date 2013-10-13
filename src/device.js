@@ -226,10 +226,10 @@ Device.prototype.isClearingEnabled = function() {
 	return this._clear;
 };
 
-//Enable and disable rendering.  Note that it is up to the application
-//to respond to this.  The Environment cannot control rendering
-//without also controlling clearing, which if it does, causes problems
-//when using debug devices.
+//Enable and disable rendering. Note that it is up to the application
+//to respond to this. The Environment cannot control rendering without
+//also directly controlling clearing, which if it does, causes
+//problems when using debug devices.
 Device.prototype.enableRendering = function() {
 	this._render = true;
 };
