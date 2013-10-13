@@ -171,7 +171,7 @@
 	 * delegate to the game handler.
 	 * @param {number} time - the current time at the moment of this frame.
 	 */
-	Assoc.prototype.frame = function(time) {
+	Assoc.prototype.frame = function(time) {	
 		//Update clocks
 		//First time init
 		if (this.clock.time == null) this.clock.time = time;
@@ -186,12 +186,27 @@
 		}
 		
 		var du = delta / this.device.refreshRate;
+		
+		//are we paused? if so, do not update unless a step was requested.
+		//otherwise, just update normally.
+		if (this.device.isPaused()) {
+			if (this.device.step()) {
+				this.game.update(this.device, du);
+			}
+		}
+		else {
+			this.game.update(this.device, du);
+		}
 
-		//do things
-		this.game.update(this.device, du);
-		this.game.render(this.device);
+		if (this.device.isRenderingEnabled()) {
+			this.game.render(this.device);
+		}
 
 		this.device.requestAnimationFrame(this._boundFrame);
+	};
+
+	Assoc.prototype.debugFrame = function(time) {
+		
 	};
 
 	window.Environment = Environment;

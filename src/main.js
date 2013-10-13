@@ -24,15 +24,22 @@ function acquireAssets(callback) {
 
 window.onload = function() {
 	acquireAssets(function(collection) {
-		var breakout = new BrowserDevice('breakout', 16.666);
-		var panel = new BrowserDevice('panel', 16.666);
+		var breakoutDevice = new BrowserDevice('breakout', 16.666);
+		var panelDevice = new BrowserDevice('panel', 16.666);
+
+		//browser device auto sets name to the id of the canvas.
+		//but we are sneaky.
+		var debugDevice = new BrowserDebugDevice('debug', breakoutDevice);
+		debugDevice.name = 'debug';
+		
 		var env = new Environment({
 			name: 'breakout',
-			devices: [ breakout, panel ],
+			devices: [ breakoutDevice, panelDevice, debugDevice ],
 			assets: collection.assets,
 			associations: {
 				breakout: Breakout,
-				panel: BreakoutPanel
+				panel: BreakoutPanel,
+				debug: Debug
 			}
 		});
 

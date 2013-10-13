@@ -4,7 +4,17 @@
  * canvas element and its associated graphics APIs.
  */
 function Device() {
+	//key binds
 	this.keys = {};
+
+	//whether or not to respect calls to the clear command.
+	this.clear = true;
+
+	//private variables to be accessible via method calls.
+	this._render = true;
+	this._pause = false;
+	
+	
 	this._frames = {};
 	this._namesToKeys = {};
 }
@@ -181,8 +191,14 @@ Device.prototype.init = function() {
 Device.prototype.graphicsApi = 'unknown';
 Device.prototype.refreshRate = null;
 
+/**
+ * Clear the device, if clear is set to true. Otherwise, silently
+ * ignore it.
+ */
 Device.prototype.clear = function() {
-	throw new Error('No device clear function implemented.');
+	if (this.clear) {
+		throw new Error('No device clear function implemented.');
+	}
 };
 
 Device.prototype.height = function() {
@@ -197,6 +213,49 @@ Device.prototype.requestAnimationFrame = function() {
 	throw new Error('No device requestAnimationFrame function implemented');
 };
 
+//debug thingies.
+Device.prototype.enableRendering = function() {
+	this._render = true;
+};
+
+Device.prototype.disableRendering = function() {
+	this._render = false;
+};
+
+Device.prototype.isRenderingEnabled = function() {
+	return this._render;
+};
+
+Device.prototype.pause = function() {
+	this._pause = true;
+};
+
+Device.prototype.unpause = function() {
+	this._pause = false;
+};
+
+Device.prototype.isPaused = function() {
+	return this._pause;
+};
+
+/**
+ * Instruct the Environment to step the device one frame. Only works
+ * when the device is paused.
+ */
+Device.prototype.step = function() {
+	var step = this._step;
+	this._step = false;
+	return step;
+};
+
+/**
+ * Queue a step for pause mode. Once queued, can be accessed once via
+ * step() method before getting stuck paused again.
+ */
+Device.prototype.queueStep = function() {
+	this._step = true;
+};
+
 /**
  * A basic device implementation for the browser.
  */
@@ -204,7 +263,9 @@ function BrowserDevice(id, refreshRate) {
 	//set a custom property, device name, and refresh rate.
 	this.id = id;
 	this.name = id;
+	this.graphicsAPI = 'canvas2d';
 	this.refreshRate = refreshRate;
+	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
 }
 
 //extend from Device.
@@ -215,12 +276,13 @@ BrowserDevice.prototype.init = function() {
 	//and window object exist.
 
 	//set normal device properties.
-	this.graphicsAPI = 'canvas2d';
+	//normally rFA should be overriden via prototype,
+	//but can't really do that here.
+
 
 	//set our own properties.
 	this.canvas = document.getElementById(this.id);
 	this.ctx = this.canvas.getContext('2d');
-	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
 	
 	//input device setup.
 	var self = this;
@@ -236,7 +298,9 @@ BrowserDevice.prototype.init = function() {
 };
 
 BrowserDevice.prototype.clear = function() {
-	this.ctx.clearRect(0, 0, this.width(), this.height());
+	if (this.clear) {
+		this.ctx.clearRect(0, 0, this.width(), this.height());
+	}
 };
 
 BrowserDevice.prototype.height = function() {
@@ -258,3 +322,69 @@ BrowserDevice.prototype.emitEvent = function(eventName, evt) {
 	var event = new CustomEvent(eventName, { detail: evt });
 	this.canvas.dispatchEvent(event);
 };
+
+//A device to debug a browser device.
+function BrowserDebugDevice(name, deviceToDebug) {
+	if (!(deviceToDebug instanceof BrowserDevice))
+		throw new Error('deviceToDebug is not a BrowserDevice');
+	
+	this.name = name;
+	this.graphicsAPI = deviceToDebug.graphicsAPI;
+	this.deviceToDebug = deviceToDebug;
+	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
+}
+
+BrowserDebugDevice.prototype = new Device;
+
+BrowserDebugDevice.prototype.init = function() {
+	return true;
+};
+
+BrowserDebugDevice.prototype.clear = function() {
+	return this.deviceToDebug.clear();
+};
+
+BrowserDebugDevice.prototype.height = function() {
+	return this.deviceToDebug.height();
+};
+
+BrowserDebugDevice.prototype.width = function() {
+	return this.deviceToDebug.width();
+};
+
+BrowserDebugDevice.prototype.addEventListener = function(eventName, callback) {
+	this.deviceToDebug.addEventListener(eventName, callback);
+};
+
+BrowserDebugDevice.prototype.emitEvent = function(eventName, evt) {
+	this.deviceToDebug.emitEvent(eventName, evt);
+};
+
+BrowserDebugDevice.prototype.isRenderingEnabled = function() {
+	return false;
+};
+
+BrowserDebugDevice.prototype.defineKey = function(keyCharacter, keyType, keyName) {
+	this.deviceToDebug.defineKey(keyCharacter, keyType, keyName);
+};
+
+BrowserDebugDevice.prototype.defineKeys = function(keys) {
+	this.deviceToDebug.defineKeys(keys);
+};
+
+BrowserDebugDevice.prototype.isKeyHeld = function(keyName) {
+	return this.deviceToDebug.isKeyHeld(keyName);
+};
+
+BrowserDebugDevice.prototype.pressKey = function(keyCode) {
+	this.deviceToDebug.pressKey(keyCode);
+};
+
+BrowserDebugDevice.prototype.unpressKey = function(keyCode) {
+	this.deviceToDebug.unpressKey(keyCode);
+};
+
+BrowserDebugDevice.prototype.addInputListener = function(keyName, callback) {
+	this.deviceToDebug.addInputListener(keyName, callback);
+};
+
