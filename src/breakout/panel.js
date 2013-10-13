@@ -11,9 +11,12 @@ BreakoutPanel.prototype = new Game;
 //What graphics do we support?
 BreakoutPanel.prototype.supportedGraphics = [ 'canvas2d' ];
 
-//keynames
+BreakoutPanel.prototype.getMaxBrickTime = function() {
+	var maxTime =  900 - (globals.level * 50);
+	if (maxTime < 400) maxTime = 400;
+	return maxTime;
+};
 
-//methods
 BreakoutPanel.prototype.init = function(assoc) {
 	this.assoc = assoc;
 	var device = assoc.device;
@@ -43,7 +46,7 @@ BreakoutPanel.prototype.update = function(device, du) {
 	if (panelbricks.hasBricks()) {
 		this.brickTime += du;
 
-		if (this.brickTime > 900 * du) {
+		if (this.brickTime > this.getMaxBrickTime()) {
 			this.assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks);
 			panelbricks.setBricks(null);
 			this.brickTime = 0;
@@ -70,13 +73,20 @@ BreakoutPanel.prototype.render = function(device) {
 	ctx.fillText('L: ' + globals.level, device.width() / 2, 45);
 	ctx.fillText('Upcoming', device.width() /2, 80);
 	ctx.restore();
-	
-	//render upcoming bricks
+
+	//render upcoming bricks (preview box)
 	ctx.save();
 	ctx.translate(0, panelbricks.topSpace);
 	ctx.fillStyle = '#DDDDDD';
 	ctx.fillRect(0, 0, device.width(), device.height() / 3);
 	ctx.restore();
 	panelbricks.render(device);
+
+	//render upcoming timer
+	ctx.save();
+	var filledWidth = (this.brickTime / this.getMaxBrickTime()) * device.width();
+	ctx.fillStyle = '#AAAAFF';
+	ctx.fillRect(0, panelbricks.topSpace, filledWidth, 10);
+	ctx.restore();
 };
 
