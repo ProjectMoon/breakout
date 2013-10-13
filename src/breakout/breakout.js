@@ -14,6 +14,7 @@ TODO:
  - ubermode
  - slowtime
  - next set of blocks preview
+ - score based on how far you get per level
  */
 
 var paddle;

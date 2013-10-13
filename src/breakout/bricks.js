@@ -46,6 +46,11 @@ Bricks.prototype.makeLevel = function() {
 		this.bricks[c] = [];
 
 		for (var x = 0; x < 10; x++) {
+			if (x == 0) {
+				this.bricks[c][x] = null;
+				continue;
+			}
+		
 			switch (c) {
 				case 0:
 				case 1:
