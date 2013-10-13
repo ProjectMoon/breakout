@@ -46,6 +46,7 @@ Breakout.prototype.supportedGraphics = [ 'canvas2d' ];
 
 //methods
 Breakout.prototype.init = function(assoc) {
+	assoc.sendMessage('panel', 'newblock', {});
 	var device = assoc.device;
 	device.defineKeys(BINDS);
 
@@ -138,8 +139,8 @@ Breakout.prototype.update = function(device, du) {
 
 	//new level every 100 points
 	if (levelScore >= 100) {
-		ball.speed += 2;
-		paddle.vel += 3;
+		ball.speed += .5;
+		paddle.vel += .7;
 		levelScore = 0;
 	}
 

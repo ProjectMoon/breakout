@@ -53,7 +53,7 @@
 
 			//object that holds the game, device, and clock for this
 			//particular device.
-			var assoc = new Assoc(this, {
+			var assoc = new Assoc(self, {
 				device: device,
 				game: new game,
 				clock: {
@@ -87,11 +87,24 @@
 		}
 	};
 
+	Environment.prototype.sendMessage = function(assocName, msgName, msg) {
+		var assoc = this.assoc[assocName];
+
+		if (assoc) {
+			assoc.receiveMessage(msgName, msg);
+		}
+		else {
+			throw new Error('assoc "' + assocName + '" does not exist.');
+		}
+	};
+
 	/**
 	 * Create an Assoc: collection of device, game instance, and clock.
 	 */
 	function Assoc(env, descr) {
 		this._environment = env;
+		this._messageListeners = {};
+		
 		for (var key in descr) {
 			this[key] = descr[key];
 		}
@@ -128,6 +141,30 @@
 		this.device.requestAnimationFrame(this._boundFrame);
 	};
 
+	/**
+	 * Send a message to another assoc. The assoc must bind to the
+	 * receive message method for the proper method name in order to
+	 * get the message.
+	 */
+	Assoc.prototype.sendMessage = function(assocName, messageName, message) {
+		this._environment.sendMessage(assocName, messageName, message);
+	};
+
+	Assoc.prototype.setMessageListener = function(messageName, callback) {
+		this._messageListeners[messageName] = callback;
+	};
+
+	Assoc.prototype.receiveMesasge = function(messageName, message) {
+		var listener = this._messageListeners[messageName];
+
+		if (listener) {
+			//direct call can cause weird ajax bugs.
+			//TODO abstract for non web use?
+			setTimeout(function() {
+				listener(message);
+			}, 0);
+		}
+	};
 	
 	/**
 	 * Process a single frame. That is, calculate delta time and
