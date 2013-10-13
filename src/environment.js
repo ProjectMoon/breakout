@@ -53,14 +53,14 @@
 
 			//object that holds the game, device, and clock for this
 			//particular device.
-			var assoc = {
+			var assoc = new Assoc(this, {
 				device: device,
 				game: new game,
 				clock: {
 					time: null,
 					delta: null
 				}
-			};
+			});
 
 			self.assoc[deviceName] = assoc;
 		});
@@ -73,11 +73,7 @@
 		this.init();
 		for (deviceName in this.assoc) {
 			var assoc = this.assoc[deviceName];
-
-			//the "this" context of the frame function will always
-			//be the assoc.
-			assoc._boundFrame = this.frame.bind(assoc);
-			assoc.device.requestAnimationFrame(assoc._boundFrame);
+			assoc.start();
 		}
 	};
 
@@ -85,36 +81,60 @@
 	 * Initialize the environment.
 	 */
 	Environment.prototype.init = function() {
-		var self = this;
-		this.devices.forEach(function(device) {
-			var devInit = device.init.bind(device);
-			var success = devInit();
-			
-			if (!success) {
-				throw new Error('Device did not initialize successfully');
-			}
-
-			//API check.
-			var assoc = self.assoc[device.name];
-			var game = assoc.game;
-			if (game.supportedGraphics.indexOf(device.graphicsAPI) == -1) {
-				throw new Error('Device uses ' + device.graphicsAPI +
-									 ', but game does not support it.');
-			}
-
-			//Init game.
-			game.init(assoc);
-		});
+		for (var deviceName in this.assoc) {
+			var assoc = this.assoc[deviceName];
+			assoc.init();
+		}
 	};
 
 	/**
+	 * Create an Assoc: collection of device, game instance, and clock.
+	 */
+	function Assoc(env, descr) {
+		this._environment = env;
+		for (var key in descr) {
+			this[key] = descr[key];
+		}
+	}
+
+	Assoc.prototype.init = function() {
+		var device = this.device;
+		var devInit = device.init.bind(device);
+		var success = devInit();
+		
+		if (!success) {
+			throw new Error('Device did not initialize successfully');
+		}
+		
+		//API check.
+		var game = this.game;
+		if (game.supportedGraphics.indexOf(device.graphicsAPI) == -1) {
+			throw new Error('Device uses ' + device.graphicsAPI +
+								 ', but game does not support it.');
+		}
+		
+		//Init game.
+		game.init(this);
+
+		this._inited = true;
+	};
+
+	Assoc.prototype.start = function() {
+		if (!this._inited) throw new Error('Assoc not initialized.');
+
+		//the "this" context of the frame function will always
+		//be the assoc.
+		this._boundFrame = this.frame.bind(this);
+		this.device.requestAnimationFrame(this._boundFrame);
+	};
+
+	
+	/**
 	 * Process a single frame. That is, calculate delta time and
-	 * delegate to the game handler. The "this" context in this
-	 * function is not actually the Environment. Rather, it is the
-	 * association (containing clock, device, game instance).
+	 * delegate to the game handler.
 	 * @param {number} time - the current time at the moment of this frame.
 	 */
-	Environment.prototype.frame = function(time) {
+	Assoc.prototype.frame = function(time) {
 		//Update clocks
 		//First time init
 		if (this.clock.time == null) this.clock.time = time;
