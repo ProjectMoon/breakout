@@ -14,6 +14,7 @@ TODO:
 function Debug() {
 	console.log('Debug module loaded.');
 	this.gameOver = false;
+	this.showTimers = false;
 }
 
 Debug.prototype = new Game;
@@ -26,6 +27,8 @@ Debug.prototype.supportedGraphics = [ 'canvas2d' ];
 //methods
 Debug.prototype.init = function(assoc) {
 	var device = assoc.device;
+	var self = this;
+	
 	device.defineKeys(DEBUG_BINDS);
 
 	device.addInputListener(PAUSE, function(evt) {
@@ -70,6 +73,10 @@ Debug.prototype.init = function(assoc) {
 			}
 		});
 	});
+
+	device.addInputListener(SHOW_TIMERS, function(evt) {
+		self.showTimers = evt.toggle;
+	});
 };
 
 Debug.prototype.update = function(device, du) {
@@ -80,5 +87,20 @@ Debug.prototype.update = function(device, du) {
 Debug.prototype.render = function(device) {
 	if (this.gameOver) return;
 
+	if (this.showTimers) {
+		var ctx = device.ctx;
+		var y = 350;
+		var assocNames = Object.keys(device.assocs);
+		
+		assocNames.forEach(function(assocName) {
+			var assoc = device.assocs[assocName];
+			ctx.fillText(assocName, 50, y);
+			ctx.fillText('FT ' + assoc.clock.time, 50, y+10);
+			ctx.fillText('FD ' + assoc.clock.delta, 50, y+20);
+			ctx.fillText('UU ' + assoc.clock.prevDU, 50, y+30); 
+			ctx.fillText('FrameSync ON', 50, y+40);
+			y += 60;
+		});
+	}
 };
 

@@ -189,7 +189,9 @@ Device.prototype.init = function() {
  * ones they support and Environment will reject if it it's wrong.
  */
 Device.prototype.graphicsApi = 'unknown';
+
 Device.prototype.refreshRate = null;
+Device.prototype.isDebugDevice = false;
 
 /**
  * Clear the device, if clear is set to true. Otherwise, silently
@@ -345,15 +347,19 @@ function BrowserDebugDevice(name, hook, devicesToDebug) {
 		throw new Error('hook is not a BrowserDevice');
 	
 	this.name = name;
+	this.id = hook.id;
 	this.graphicsAPI = hook.graphicsAPI;
 	this.hook = hook;
 	this.devicesToDebug = devicesToDebug;
 	this.requestAnimationFrame = window.requestAnimationFrame.bind(window);
+	this.isDebugDevice = true;
 }
 
 BrowserDebugDevice.prototype = new Device;
 
 BrowserDebugDevice.prototype.init = function() {
+	this.canvas = document.getElementById(this.id);
+	this.ctx = this.canvas.getContext('2d');	
 	return true;
 };
 

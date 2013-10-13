@@ -58,11 +58,26 @@
 				game: new game,
 				clock: {
 					time: null,
-					delta: null
+					prevTime: null,
+					delta: null,
+					prevDU: null
 				}
 			});
 
 			self.assoc[deviceName] = assoc;
+		});
+
+		//attach assocs to debug devices.
+		this.devices.forEach(function(device) {
+			if (device.isDebugDevice) {
+				var assocs = {};
+
+				device.devicesToDebug.forEach(function(deviceToDebug) {
+					assocs[deviceToDebug.name] = self.assoc[deviceToDebug.name];
+				});
+
+				device.assocs = assocs;
+			}
 		});
 	}
 
@@ -178,6 +193,7 @@
 		
 		// Track frameTime and its delta
 		var delta = this.clock.delta = time - this.clock.time;
+		this.clock.prevTime = this.clock.time;
 		this.clock.time = time;
 
 		if (delta > 200) {
@@ -186,6 +202,7 @@
 		}
 		
 		var du = delta / this.device.refreshRate;
+		this.clock.prevDU = du;
 		
 		//are we paused? if so, do not update unless a step was requested.
 		//otherwise, just update normally.
