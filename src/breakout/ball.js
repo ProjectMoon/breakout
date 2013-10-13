@@ -127,7 +127,7 @@ Ball.prototype.update = function (device, du) {
 	}
 	
 	//bottom edge equals event
-	if (nextY > device.height()) {
+	if (nextY + this.radius > device.height() - BOTTOM_OFFSET) {
 		device.emitEvent(HIT_BOTTOM);
 	 }
 

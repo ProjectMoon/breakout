@@ -2,6 +2,7 @@ var paddle;
 var ball;
 var bricks;
 var powerbar;
+var powerselector;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -23,6 +24,7 @@ Breakout.prototype.init = function(env) {
 	bricks = new Bricks();
 	ball = new Ball(paddle, bricks, env.device);
 	powerbar = new Powerbar(0);
+	powerselector = new PowerSelector();
 
 	var self = this;
 	env.device.addEventListener(HIT_BOTTOM, function() {
@@ -56,6 +58,14 @@ Breakout.prototype.init = function(env) {
 			ball.launch();
 		}
 	});
+
+	env.device.addInputListener(POWER_LEFT, function(keyCode) {
+		powerselector.move(-1);
+	});
+
+	env.device.addInputListener(POWER_RIGHT, function(keyCode) {
+		powerselector.move(1);
+	});
 };
 
 Breakout.prototype.update = function(device, du) {
@@ -77,8 +87,21 @@ Breakout.prototype.update = function(device, du) {
 
 Breakout.prototype.render = function(device) {
 	device.clear();
+
+	//draw bottom line
+	var ctx = device.ctx;
+	ctx.save();
+
+	ctx.beginPath();
+	ctx.moveTo(0, device.height() - BOTTOM_OFFSET);
+	ctx.lineTo(device.width(), device.height() - BOTTOM_OFFSET);
+	ctx.lineWidth = 10;
+	ctx.stroke();
+	ctx.restore();
+	
 	bricks.render(device);
 	powerbar.render(device);
+	powerselector.render(device);
 	paddle.render(device);
 	ball.render(device);
 };
