@@ -61,6 +61,7 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 
 			//always force upward.
 			this.yVel *= -1;
+			this._playBlip();
 			
 			this.inCollision = true;
 		}
@@ -97,6 +98,9 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 						//otherwise we would instead plow on through.
 						if (!this.ubermode) {
 							this.yVel *= -1;
+							//no sound for ubermode because they get their own
+							//sounds.
+							this._playBlip();
 						}
 						
 						break outer;
@@ -108,6 +112,13 @@ Ball.prototype.updateForCollision = function(paddle, device) {
 			}
 		}
 	}
+};
+
+Ball.prototype._playBlip = function() {
+	//play a blip
+	//shortcut: will refactor some day...
+	var num = util.getRandomInt(1, 4);
+	document.getElementById('blip' + num).play();
 };
 
 Ball.prototype.update = function (device, du) {
@@ -137,6 +148,7 @@ Ball.prototype.update = function (device, du) {
 	// Bounce off top edge
 	if (nextY < 0 && !this.deathray) {
 		this.yVel *= -1;
+		this._playBlip();
 	}
 	
 	//bottom edge equals event
@@ -147,10 +159,12 @@ Ball.prototype.update = function (device, du) {
 
 	// bounce off left and right edges
 	if (nextX < 0 && !this.deathray) {
+		this._playBlip();
 		this.xVel *= -1;
 	}
 	
 	if (nextX > device.width() && !this.deathray) {
+		this._playBlip();
 		this.xVel *= -1;
 	}
 	

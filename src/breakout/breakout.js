@@ -46,6 +46,7 @@ Breakout.prototype.init = function(assoc) {
 	device.addEventListener(HIT_BOTTOM, function() {
 		//game over
 		console.log('game over');
+		document.getElementById('gameover').play();
 		//self.gameOver = true;
 		//later switch for respawning.
 		globals.games++;
@@ -94,14 +95,17 @@ Breakout.prototype.init = function(assoc) {
 				powerbar.powerup();
 				if (power === 'ubermode') {
 					ball.ubermode = true;
+					document.getElementById('ubermode').play();
 				}
 
 				if (power === 'slowtime') {
 					ball.slowtime = true;
+					document.getElementById('slowtime').play();
 				}
 
 				if (power === 'deathray') {
 					self.deathray(paddle, bricks, device);
+					document.getElementById('deathray').play();
 				}
 				
 				powerbar.expire(function() {
