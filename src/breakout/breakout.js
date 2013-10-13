@@ -43,6 +43,7 @@ Breakout.prototype.respawn = function(device) {
 	powerselector = new PowerSelector();
 	globals.levelScore = 0;
 	globals.totalScore = 0;
+	globals.level = 1;
 };
 
 Breakout.prototype.init = function(assoc) {
