@@ -88,8 +88,15 @@ Breakout.prototype.init = function(assoc) {
 		}
 	});
 
+	//quit
+	device.addInputListener(QUIT, function() {
+		console.log('quit by button press');
+		self.gameOver = true;
+		assoc.sendMessage('panel', 'gameOver', true);
+	});
+
 	//serves 2 purposes: launch the ball at the start, and use powers.
-	device.addInputListener(LAUNCH, function(keyCode) {
+	device.addInputListener(LAUNCH, function() {
 		if (ball.launched) {
 			if (powerbar.isMaxPower()) {
 				var power = powerselector.getSelected();
@@ -130,11 +137,11 @@ Breakout.prototype.init = function(assoc) {
 	});
 
 	//select powers
-	device.addInputListener(POWER_LEFT, function(keyCode) {
+	device.addInputListener(POWER_LEFT, function() {
 		powerselector.move(-1);
 	});
 
-	device.addInputListener(POWER_RIGHT, function(keyCode) {
+	device.addInputListener(POWER_RIGHT, function() {
 		powerselector.move(1);
 	});
 };
