@@ -28,9 +28,6 @@ var ball;
 var bricks;
 var powerbar;
 var powerselector;
-var newBlockTimer;
-var totalScore;
-var levelScore;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -55,16 +52,17 @@ Breakout.prototype.init = function(assoc) {
 	ball = new Ball(paddle, bricks, device);
 	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
-	levelScore = 0;
-	totalScore = 0;
+	globals.levelScore = 0;
+	globals.totalScore = 0;
 	
-
 	var self = this;
+	
 	device.addEventListener(HIT_BOTTOM, function() {
 		//game over
 		console.log('game over');
 		self.gameOver = true;
-		clearInterval(newBlockTimer);
+		//later switch for respawning.
+		assoc.sendMessage('panel', 'gameOver', true);
 	});
 
 	device.addEventListener(HIT_BRICK, function(evt) {
@@ -83,8 +81,8 @@ Breakout.prototype.init = function(assoc) {
 				powerbar.lock(.5, 'kill');
 			}
 
-			totalScore += evt.brick.points;
-			levelScore += evt.brick.points;
+			globals.totalScore += evt.brick.points;
+			globals.levelScore += evt.brick.points;
 		}
 	});
 
@@ -122,9 +120,11 @@ Breakout.prototype.init = function(assoc) {
 	//then we immediately generate a new row for previewing
 	//(to be added to the top in 8 sec)
 	assoc.setMessageListener('newBricks', function(newBricks) {
-		bricks.addBricksToTop(newBricks);
-		var newBricks = bricks.newRow();
-		assoc.sendMessage('panel', 'upcomingBricks', newBricks);
+		if (!self.gameOver) {
+			bricks.addBricksToTop(newBricks);
+			var newBricks = bricks.newRow();
+			assoc.sendMessage('panel', 'upcomingBricks', newBricks);
+		}
 	});
 
 	//select powers
@@ -145,10 +145,10 @@ Breakout.prototype.update = function(device, du) {
 	if (powerbar.power < 0) powerbar.power = 0;
 
 	//new level every 100 points
-	if (levelScore >= 100) {
+	if (globals.levelScore >= 100) {
 		ball.speed += .5;
 		paddle.vel += .7;
-		levelScore = 0;
+		globals.levelScore = 0;
 	}
 
 	//update game objects.

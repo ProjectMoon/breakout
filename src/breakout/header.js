@@ -22,3 +22,8 @@ var HIT_BRICK = 'hitBrick';
 
 //how much to offset the bottom from the real bottom.
 var BOTTOM_OFFSET = 85;
+
+var globals = {
+	totalScore: 0,
+	levelScore: 0
+};

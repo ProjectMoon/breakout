@@ -17,8 +17,8 @@ BreakoutPanel.prototype.init = function(assoc) {
 	var device = assoc.device;
 
 	var self = this;
-	assoc.setMessageListener('gameOver', function() {
-		self.gameOver = this;
+	assoc.setMessageListener('gameOver', function(state) {
+		self.gameOver = state;
 	});
 
 
@@ -27,8 +27,10 @@ BreakoutPanel.prototype.init = function(assoc) {
 		panelbricks.setBricks([ bricks ]);
 		setTimeout(function() {
 			//sending 0 because the first row is actually the preview.
-			assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks[0]);
-			panelbricks.setBricks(null);
+			if (!self.gameOver) {
+				assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks[0]);
+				panelbricks.setBricks(null);
+			}
 		}, 8 * 1000);
 	});
 };
@@ -43,13 +45,14 @@ BreakoutPanel.prototype.render = function(device) {
 
 	var ctx = device.ctx;
 
-	//render score
-	//score
+	//render score and level
 	ctx.save();
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'middle';
 	ctx.font = 'bold 30px arial';
-	ctx.fillText(totalScore, device.width() / 2, 15);
+	ctx.fillText(globals.totalScore, device.width() / 2, 15);
+	var level = Math.floor(globals.totalScore / 100);
+	ctx.fillText('L: ' + level, device.width() / 2, 45);
 	ctx.restore();
 	
 	//render upcoming bricks
