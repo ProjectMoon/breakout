@@ -237,5 +237,19 @@ Breakout.prototype.render = function(device) {
 	
 	powerbar.render(device);
 	powerselector.render(device);
+
+	//render some instructions at the bottom right.
+	var x = device.width() - 300;
+	var y = device.height() - 40;
+
+	ctx.save();
+
+	ctx.fillText('A/D = move left/right', x, y);
+	y += 10;
+	ctx.fillText('J/K = select power', x, y);
+	y += 10;
+	ctx.fillText('Space = launch/use power', x, y);
+	
+	ctx.restore();
 };
 
