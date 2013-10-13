@@ -18,6 +18,7 @@ function Device() {
 Device.KEY_TYPE_HOLD = 0;
 Device.KEY_TYPE_EMIT = 1;
 Device.KEY_TYPE_EMIT_ONCE = 2;
+Device.KEY_TYPE_TOGGLE = 3;
 
 //basic properties to be overridden.
 Device.prototype.name = 'unknown';
@@ -27,7 +28,8 @@ Device.prototype.defineKey = function(keyCharacter, keyType, keyName) {
 	this.keys[keyCode] = {
 		type: keyType,
 		name: keyName,
-		pressed: false
+		pressed: false,
+		toggled: false //only relevant for KEY_TYPE_TOGGLE
 	};
 
 	//initialize or update reverse mapping.
@@ -78,13 +80,33 @@ Device.prototype.pressKey = function(keyCode) {
 		//pressed, but no more. regular EMIT will continually emit the
 		//event every time a press is detected.
 		if (keybind.type === Device.KEY_TYPE_EMIT_ONCE) {
-			if (!this.keys[keyCode].pressed) {
-				this.emitEvent('key' + keyCode, keyCode);
+			if (!keybind.pressed) {
+				var evt = {
+					keyCode: keyCode
+				};
+				this.emitEvent('key' + keyCode, evt);
 			}
 		}
 
 		if (keybind.type === Device.KEY_TYPE_EMIT) {
-			this.emitEvent('key' + keyCode, keyCode);
+			var evt = {
+				keyCode: keyCode
+			};
+			this.emitEvent('key' + keyCode, evt);
+		}
+
+		//toggle behaves as EMIT_ONCE, but also sets a toggle state
+		//specific to the key (not key bind).
+		if (keybind.type === Device.KEY_TYPE_TOGGLE) {
+			if (!keybind.pressed) {
+				keybind.toggled = !keybind.toggled;
+				var evt = {
+					keyCode: keyCode,
+					toggle: keybind.toggled
+				};
+
+				this.emitEvent('key' + keyCode, evt);
+			}
 		}
 		
 		this.keys[keyCode].pressed = true;
@@ -114,7 +136,8 @@ Device.prototype.unpressKey = function(keyCode) {
  * based on each key bind's type, so if one name is bound to EMIT and
  * EMIT_ONCE, it will trigger once for the EMIT_ONCE key and
  * continuously for the EMIT key(s). The event receives the key code
- * (not character) as an argument.
+ * (not character) as an argument. Toggle keys receive a secondary argument,
+ * indicating the state of the toggle.
  */
 Device.prototype.addInputListener = function(keyName, callback) {
 	var keyCodes = this._namesToKeys[keyName];
@@ -126,8 +149,15 @@ Device.prototype.addInputListener = function(keyName, callback) {
 };
 
 //Event handling
-Device.prototype.addEventHandler = function(eventName, callback) {
-	throw new Error('No device addEventHandler function implemented.');
+/**
+ * Add an event listener to the device. Both the name and what is
+ * passed into hte callback function are up to the developer. The
+ * handler receives a payload indepedent of what the underlying device
+ * platform is. For example, in a browser, the CustomEvent detail is
+ * sent directly instead of sending the whole CustomEvent.
+ */
+Device.prototype.addEventListener = function(eventName, callback) {
+	throw new Error('No device addEventListener function implemented.');
 };
 
 Device.prototype.emitEvent = function(eventName, evt) {

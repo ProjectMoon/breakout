@@ -4,6 +4,7 @@ var MOVE_RIGHT = 'MOVE_RIGHT';
 var LAUNCH = 'LAUNCH';
 var POWER_LEFT = 'POWER_LEFT';
 var POWER_RIGHT = 'POWER_RIGHT';
+var TOGGLE_TEST = 'TOGGLE_TEST';
 
 //key bindings
 var BINDS = {
@@ -11,7 +12,8 @@ var BINDS = {
 	D: [ Device.KEY_TYPE_HOLD, MOVE_RIGHT ],
 	' ': [ Device.KEY_TYPE_EMIT_ONCE, LAUNCH ],
 	J: [ Device.KEY_TYPE_EMIT_ONCE, POWER_LEFT ],
-	K: [ Device.KEY_TYPE_EMIT_ONCE, POWER_RIGHT ]
+	K: [ Device.KEY_TYPE_EMIT_ONCE, POWER_RIGHT ],
+	T: [ Device.KEY_TYPE_TOGGLE, TOGGLE_TEST ]
 };
 
 //event names

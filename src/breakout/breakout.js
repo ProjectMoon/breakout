@@ -1,19 +1,21 @@
 /*
 TODO:
  - deathray
- - remove/rework 2d array for bricks to allow them
-   to move and add new brick rows dynamically.
- - slowly start bringing in new brick rows of randomized bricks
- - gameover (or massive score loss) if blocks go past you
  - once ball reaches a certain speed, cap it out
- - implement faster and faster balls as "levels"
- - make levels tied to points
  - debuff blocks: smaller paddle, mirror controls, dubstep?
- - keep track of and display score.
  - darken blocks that are < max life.
  - implement proper respawn
  - spinning black hole type background image (blue of course)
  - random black holes that pull the ball towards it?
+ - replicate the debug stuff in the pong framework:
+    * C = stop clearing
+    * P = pause
+    * O = single step if paused.
+    * F = weird debug frame thingy
+    * Q = quit (gameover)
+    * T = show timers (current time, delta, previous time)
+    * R = toggle rendering
+    * B = draw a red box
 
  cool things (need 6):
  - powerup meter
@@ -56,7 +58,7 @@ Breakout.prototype.init = function(assoc) {
 	globals.totalScore = 0;
 	
 	var self = this;
-	
+
 	device.addEventListener(HIT_BOTTOM, function() {
 		//game over
 		console.log('game over');
