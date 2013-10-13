@@ -9,7 +9,7 @@ PowerSelector.prototype.getSelected = function() {
 
 PowerSelector.prototype.move = function(amount) {
 	if (this.selected + amount >= 0 &&
-		 this.selected + amount <= this.powers.length) {
+		 this.selected + amount < this.powers.length) {
 
 		this.selected += amount;
 	}
