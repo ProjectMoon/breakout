@@ -10,6 +10,10 @@ util.getRandomNumber = function(min, max) {
 	return Math.random() * (max - min) + min;
 };
 
+util.getRandomInt = function(min, max) {
+	return Math.floor(Math.random() * (max - min) + min);
+};
+
 util.rectangleIntersection = function(r1, r2) {
 	return !(r2.left > r1.right || 
 				r2.right < r1.left || 

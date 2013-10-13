@@ -64,6 +64,25 @@ Bricks.prototype._makeLevel = function() {
 	}
 };
 
+Bricks.prototype.newRow = function() {
+	var newRow = [];
+	var colorNames = Object.keys(BRICK_COLORS);
+	
+	for (var c = 0; c < 10; c++) {
+		//> 3 = no brick.
+		var num = util.getRandomInt(0, 6);
+		if (num < colorNames.length) {
+			var color = colorNames[num];
+			newRow.push(this._makeBrick(BRICK_COLORS[color]));
+		}
+		else {
+			newRow.push(null);
+		}
+	}
+
+	this.bricks.unshift(newRow);
+};
+
 Bricks.prototype.getHitbox = function(r, c, brickWidth, brickHeight) {
 	var x = c * brickWidth;
 	var y = (r * brickHeight) + this.topSpace;

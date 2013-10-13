@@ -1,8 +1,34 @@
+/*
+TODO:
+ - deathray
+ - remove/rework 2d array for bricks to allow them
+   to move and add new brick rows dynamically.
+ - slowly start bringing in new brick rows of randomized bricks
+ - gameover (or massive score loss) if blocks go past you
+ - once ball reaches a certain speed, cap it out
+ - implement faster and faster balls as "levels"
+ - make levels tied to points
+ - debuff blocks: smaller paddle, mirror controls, dubstep?
+ - keep track of and display score.
+ - darken blocks that are < max life.
+ - implement proper respawn
+ - spinning black hole type background image (blue of course)
+ - random black holes that pull the ball towards it?
+
+ cool things (need 6):
+ - powerup meter
+ - tetris type speedup with constant incoming blocks
+ - black hole
+ - debuff blocks
+ - dubstep mode?
+ */
+
 var paddle;
 var ball;
 var bricks;
 var powerbar;
 var powerselector;
+var newBlockTimer;
 
 function Breakout() {
 	console.log('Breakout loaded.');
@@ -31,6 +57,7 @@ Breakout.prototype.init = function(env) {
 		//game over
 		console.log('game over');
 		self.gameOver = true;
+		clearInterval(newBlockTimer);
 	});
 
 	env.device.addEventListener(HIT_BRICK, function(evt) {
@@ -84,9 +111,16 @@ Breakout.prototype.init = function(env) {
 		}
 		else {
 			ball.launch();
+
+			//every 10 seconds, generate a new row of bricks.
+			//here so it doesn't start until we launch.
+			newBlockTimer = setInterval(function() {
+				bricks.newRow();
+			}, 10 * 1000);
 		}
 	});
 
+	//select powers
 	env.device.addInputListener(POWER_LEFT, function(keyCode) {
 		powerselector.move(-1);
 	});
