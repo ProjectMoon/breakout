@@ -63,27 +63,51 @@ Bricks.prototype.makeLevel = function() {
 	}
 };
 
-Bricks.prototype.newRow = function() {
-	var newRow = [];
-	var colorNames = Object.keys(BRICK_COLORS);
-	
-	for (var c = 0; c < 10; c++) {
-		//> 3 = no brick.
-		var num = util.getRandomInt(0, 6);
-		if (num < colorNames.length) {
-			var color = colorNames[num];
-			newRow.push(this._makeBrick(BRICK_COLORS[color]));
-		}
-		else {
-			newRow.push(null);
-		}
+Bricks.prototype.newRows = function(level, full) {
+	if (full == undefined) full = false;
+	if (level < 1) level = 1;
+
+	//make level / 2 rows, up to a maximum of 8. unless we just
+	//advanced a level, then we make something special.
+	if (full) {
+		var numRows = level;
+	}
+	else {
+		var numRows = Math.floor(level / 2);
+		if (numRows < 1) numRows = 1;
+		if (numRows > 8) numRows = 8;
 	}
 
-	return newRow;
+	var newRows = [];
+
+	for (var r = 0; r < numRows; r++) {
+		var newRow = [];
+		var colorNames = Object.keys(BRICK_COLORS);
+		
+		for (var c = 0; c < 10; c++) {
+			//> 3 = no brick.
+			var num = util.getRandomInt(0, 6);
+			if (num < colorNames.length) {
+				var color = colorNames[num];
+				newRow.push(this._makeBrick(BRICK_COLORS[color]));
+			}
+			else {
+				newRow.push(null);
+			}
+		}
+
+		newRows.push(newRow);
+	}
+
+	return newRows;
 };
 
 Bricks.prototype.addBricksToTop = function(bricks) {
-	this.bricks.unshift(bricks);
+	//need to put them on top in reverse so it matches the preview.
+	for (var c = bricks.length - 1; c >= 0; c--) {
+		var row = bricks[c];
+		this.bricks.unshift(row);
+	}
 };
 
 Bricks.prototype.empty = function() {
@@ -146,6 +170,12 @@ Bricks.prototype.render = function(device) {
 				ctx.strokeStyle = '#333333';
 				ctx.fillRect(x, y, brickWidth, brickHeight);
 				ctx.strokeRect(x, y, brickWidth, brickHeight);
+
+				//this should definitely be in the update method,
+				//but it's easier to put it here than refactoring.
+				if (y + brickHeight > height - BOTTOM_OFFSET) {
+					device.emitEvent(HIT_BOTTOM);
+				}
 			}
 
 			x += brickWidth + this.spacing;

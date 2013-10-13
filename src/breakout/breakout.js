@@ -111,7 +111,7 @@ Breakout.prototype.init = function(assoc) {
 			ball.launch();
 
 			//start up the preview/brick adding system.
-			var newBricks = bricks.newRow();
+			var newBricks = bricks.newRows(globals.level);
 			assoc.sendMessage('panel', 'upcomingBricks', newBricks);
 		}
 	});
@@ -122,7 +122,7 @@ Breakout.prototype.init = function(assoc) {
 	assoc.setMessageListener('newBricks', function(newBricks) {
 		if (!self.gameOver) {
 			bricks.addBricksToTop(newBricks);
-			var newBricks = bricks.newRow();
+			var newBricks = bricks.newRows(globals.level);
 			assoc.sendMessage('panel', 'upcomingBricks', newBricks);
 		}
 	});
@@ -149,6 +149,14 @@ Breakout.prototype.update = function(device, du) {
 		ball.speed += .5;
 		paddle.vel += .7;
 		globals.levelScore = 0;
+		globals.level++;
+
+		//add rows of bricks = to level (normally it's level / 2)
+		//only every few levels because otherwise ubermode goes crazy.
+		if (globals.level % 5 == 0) {
+			var bunchOfBricks = bricks.newRows(globals.level, true);
+			bricks.addBricksToTop(bunchOfBricks);
+		}
 	}
 
 	//update game objects.
@@ -157,6 +165,7 @@ Breakout.prototype.update = function(device, du) {
 };
 
 Breakout.prototype.render = function(device) {
+	if (this.gameOver) return;
 	device.clear();
 
 	//draw bottom line separating power bar and selector from the game

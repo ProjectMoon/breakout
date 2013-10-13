@@ -23,12 +23,11 @@ BreakoutPanel.prototype.init = function(assoc) {
 
 
 	assoc.setMessageListener('upcomingBricks', function(bricks) {
-		//turning it into a 2d array here for the method.
-		panelbricks.setBricks([ bricks ]);
+		//bricks come in as a ready-to-go 2d array.
+		panelbricks.setBricks(bricks);
 		setTimeout(function() {
-			//sending 0 because the first row is actually the preview.
 			if (!self.gameOver) {
-				assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks[0]);
+				assoc.sendMessage('breakout', 'newBricks', panelbricks.bricks);
 				panelbricks.setBricks(null);
 			}
 		}, 8 * 1000);
@@ -41,6 +40,8 @@ BreakoutPanel.prototype.update = function(device, du) {
 };
 
 BreakoutPanel.prototype.render = function(device) {
+	if (this.gameOver) return;
+	
 	device.clear();
 
 	var ctx = device.ctx;
@@ -51,11 +52,17 @@ BreakoutPanel.prototype.render = function(device) {
 	ctx.textBaseline = 'middle';
 	ctx.font = 'bold 30px arial';
 	ctx.fillText(globals.totalScore, device.width() / 2, 15);
-	var level = Math.floor(globals.totalScore / 100);
-	ctx.fillText('L: ' + level, device.width() / 2, 45);
+	
+	ctx.fillText('L: ' + globals.level, device.width() / 2, 45);
+	ctx.fillText('Upcoming', device.width() /2, 80);
 	ctx.restore();
 	
 	//render upcoming bricks
+	ctx.save();
+	ctx.translate(0, panelbricks.topSpace);
+	ctx.fillStyle = '#DDDDDD';
+	ctx.fillRect(0, 0, device.width(), device.height() / 3);
+	ctx.restore();
 	panelbricks.render(device);
 };
 
