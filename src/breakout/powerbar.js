@@ -8,7 +8,7 @@ function Powerbar(power) {
 
 Powerbar.prototype.add = function(power, group) {
 	if (group == undefined) group = 'default';
-	if (!this.poweredup) {
+	if (!this.poweredup && !this.isMaxPower()) {
 		if (!this.locked[group] || power < 0) {
 			this.power += power;
 		}
@@ -63,6 +63,14 @@ Powerbar.prototype.render = function(device) {
 	ctx.strokeRect(0, height - barHeight - above, width, barHeight);
 	ctx.fillStyle = '#0055AA';
 	ctx.fillRect(0, height - barHeight - above, filledWidth, barHeight);
+
+	if (this.isMaxPower()) {
+		ctx.textAlign = 'center';
+		ctx.fillStyle = 'white';
+		ctx.font = 'italic bold 14px arial';
+		
+		ctx.fillText('Ready to use power!', width / 2, height - barHeight * 2);
+	}
 		
 	ctx.restore();
 };

@@ -23,7 +23,7 @@ Breakout.prototype.init = function(env) {
 	paddle = new Paddle();
 	bricks = new Bricks();
 	ball = new Ball(paddle, bricks, env.device);
-	powerbar = new Powerbar(0);
+	powerbar = new Powerbar(10);
 	powerselector = new PowerSelector();
 
 	var self = this;
@@ -73,12 +73,15 @@ Breakout.prototype.update = function(device, du) {
 	if (powerbar.power > 0) powerbar.add(-.02 * du);
 	if (powerbar.power < 0) powerbar.power = 0;
 
-	if (powerbar.powerup()){
+	if (powerbar.isMaxPower()){
+		//ready to launch captain.
 		//ubermode!
+		/*
 		ball.ubermode = true;
 		powerbar.expire(function() {
 			ball.ubermode = false;
 		}, 3);
+		*/
 	}
 	
 	paddle.update(device, du);
