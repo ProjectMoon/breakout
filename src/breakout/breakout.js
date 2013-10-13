@@ -23,7 +23,7 @@ Breakout.prototype.init = function(env) {
 	paddle = new Paddle();
 	bricks = new Bricks();
 	ball = new Ball(paddle, bricks, env.device);
-	powerbar = new Powerbar(10, 10);
+	powerbar = new Powerbar(0, 10);
 	powerselector = new PowerSelector();
 
 	var self = this;
@@ -64,21 +64,23 @@ Breakout.prototype.init = function(env) {
 	//serves 2 purposes: launch the ball at the start, and use powers.
 	env.device.addInputListener(LAUNCH, function(keyCode) {
 		if (ball.launched) {
-			var power = powerselector.getSelected();
+			if (powerbar.isMaxPower()) {
+				var power = powerselector.getSelected();
 
-			powerbar.powerup();
-			if (power === 'ubermode') {
-				ball.ubermode = true;
-			}
+				powerbar.powerup();
+				if (power === 'ubermode') {
+					ball.ubermode = true;
+				}
 
-			if (power === 'slowtime') {
-				ball.slowtime = true;
+				if (power === 'slowtime') {
+					ball.slowtime = true;
+				}
+				
+				powerbar.expire(function() {
+					ball.ubermode = false;
+					ball.slowtime = false;
+				}, 3);
 			}
-			
-			powerbar.expire(function() {
-				ball.ubermode = false;
-				ball.slowtime = false;
-			}, 3);	
 		}
 		else {
 			ball.launch();
